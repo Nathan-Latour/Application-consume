@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pilotage de la consume des chais - v11</title>
+  <style>
+    :root{--bg:#f6f4ef;--panel:#fffdf8;--ink:#17212b;--muted:#66717f;--line:#ded8cc;--blue:#19324d;--blue2:#254b72;--accent:#8b6b3d;--green:#257a4b;--orange:#c97919;--red:#b23a3a;--soft:#eef2f5;--shadow:0 12px 30px rgba(25,50,77,.08)}
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+    .app{display:block;min-height:100vh}.side{background:linear-gradient(90deg,#17283d,#1f3a58);color:white;padding:12px 22px;position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:20px;box-shadow:0 10px 24px rgba(25,50,77,.16)}.brand{display:flex;gap:12px;align-items:center;margin-bottom:0;min-width:245px}.logo{width:42px;height:42px;border-radius:14px;background:#d7b77a;display:grid;place-items:center;font-weight:800;color:#17283d}.brand h1{font-size:18px;margin:0;line-height:1.15}.brand p{margin:3px 0 0;color:#cbd7e0;font-size:12px}.nav{display:flex;gap:8px;align-items:center;flex-wrap:wrap;flex:1}.nav button{border:0;background:transparent;color:#e8eef4;text-align:center;border-radius:14px;padding:11px 14px;font-weight:650;cursor:pointer;white-space:nowrap}.nav button.active,.nav button:hover{background:rgba(255,255,255,.13)}.side .note{display:none}.main{padding:22px 28px 28px;overflow:auto}.top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:22px}.top h2{font-size:28px;margin:0}.top p{margin:6px 0 0;color:var(--muted)}.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:1px solid var(--line);background:white;border-radius:12px;padding:10px 12px;font-weight:700;cursor:pointer;color:var(--blue)}.btn.primary{background:var(--blue);border-color:var(--blue);color:white}.btn.warn{background:#fff3e1;border-color:#edd0a4;color:#7b4300}.btn.danger{background:#ffecec;border-color:#f3b9b9;color:#8d1f1f}.grid{display:grid;gap:16px}.kpis{grid-template-columns:repeat(4,minmax(160px,1fr))}.card{background:var(--panel);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:18px}.card h3{margin:0 0 12px;font-size:16px}.kpi .label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}.kpi .value{font-size:29px;font-weight:800;margin-top:8px}.kpi .sub{font-size:12px;color:var(--muted);margin-top:4px}.two{grid-template-columns:1.25fr .9fr}.three{grid-template-columns:repeat(3,1fr)}.section{display:none}.section.active{display:block}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:16px;background:white}table{border-collapse:collapse;width:100%;font-size:14px}th,td{border-bottom:1px solid #ece6db;padding:9px 10px;text-align:right;white-space:nowrap}th{background:#f3efe7;color:#304155;font-size:12px;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0;z-index:1}td:first-child,th:first-child,td:nth-child(2),th:nth-child(2),td:nth-child(3),th:nth-child(3){text-align:left}input,select{border:1px solid var(--line);border-radius:10px;padding:8px 9px;background:white;min-width:84px}input[type='number']{width:92px}input[type='date']{width:138px}.small-input{width:72px;min-width:64px}.tag{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:12px;font-weight:800}.tag.faible{background:#e7f4ec;color:var(--green)}.tag.moderee{background:#fff1dc;color:var(--orange)}.tag.forte{background:#ffe1cf;color:#a85313}.tag.critique{background:#ffe4e4;color:var(--red)}.pill{background:#edf1f4;border-radius:999px;padding:4px 9px;color:#405469;font-weight:700}.help{color:var(--muted);font-size:13px;line-height:1.5}.canvas-card{height:320px}.bar-row{display:grid;grid-template-columns:115px 1fr 100px;gap:10px;align-items:center;margin:10px 0}.bar{height:12px;background:#eee5d6;border-radius:999px;overflow:hidden}.bar span{display:block;height:100%;background:linear-gradient(90deg,#8aa7bf,#19324d);border-radius:999px}.footer-status{position:fixed;right:24px;bottom:18px;background:#17283d;color:white;padding:10px 14px;border-radius:999px;box-shadow:var(--shadow);font-size:12px;opacity:0;transform:translateY(10px);transition:.2s}.footer-status.show{opacity:1;transform:translateY(0)}.equation{font-family:ui-monospace,Consolas,monospace;background:#f1ede4;border:1px solid var(--line);padding:12px;border-radius:14px;line-height:1.5}.row-fields{display:grid;grid-template-columns:repeat(3,minmax(180px,1fr));gap:12px}.checkline{display:flex;align-items:center;gap:8px;margin:8px 0;color:var(--muted);font-size:13px}.warning{background:#fff7e8;border:1px solid #efd5a8;border-radius:16px;padding:12px;margin:10px 0;color:#714600}.weather-alert{border-radius:16px;padding:12px;margin:10px 0;border:1px solid var(--line);background:#f3f7f0;color:#244b31}.weather-alert.warn{background:#fff7e8;border-color:#efd5a8;color:#714600}.weather-alert.critique{background:#ffecec;border-color:#f3b9b9;color:#8d1f1f}.weather-alert ul{margin:8px 0 0 18px;padding:0}.weather-alert li{margin:4px 0}.muted{color:var(--muted)}.total-row td{font-weight:800;background:#f7f2e9}.summary-date{font-weight:800;color:var(--blue)}.backup-status{display:grid;grid-template-columns:repeat(3,minmax(180px,1fr));gap:12px}.backup-box{background:#f7f3eb;border:1px solid var(--line);border-radius:16px;padding:12px}.backup-box strong{display:block;font-size:18px;margin-top:4px}.backup-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .dashboard-compact{--dash-gap:10px}.dashboard-compact .top{margin-bottom:10px}.dashboard-compact .top h2{font-size:26px}.dashboard-compact .top p{font-size:14px}.dashboard-compact .card{padding:12px;border-radius:17px}.dashboard-compact .card h3{font-size:16px;margin-bottom:7px}.dashboard-compact .help{font-size:12.8px;margin:3px 0 7px;line-height:1.22}.dashboard-compact .kpis{grid-template-columns:repeat(3,minmax(145px,1fr));gap:var(--dash-gap)}.dashboard-compact .kpi .label{font-size:12px}.dashboard-compact .kpi .value{font-size:25px;margin-top:5px}.dashboard-compact .kpi .sub{font-size:12px;margin-top:2px}.dashboard-compact .grid{gap:var(--dash-gap)}.dashboard-layout{display:grid;grid-template-columns:minmax(640px,2fr) minmax(320px,1fr);gap:var(--dash-gap);margin-top:var(--dash-gap);align-items:start}.dashboard-left,.dashboard-right{display:grid;gap:var(--dash-gap)}.dashboard-left{min-width:0}.dashboard-right{min-width:0}.dashboard-compact .three{grid-template-columns:repeat(3,1fr);gap:var(--dash-gap)}.dashboard-compact .canvas-card{height:auto;overflow:hidden}.dashboard-compact .chart-canvas{width:100%;height:190px;display:block}.dashboard-compact .volume-canvas{height:185px}.dashboard-compact .env-canvas{height:165px}.env-split{display:grid;grid-template-columns:1fr 1fr;gap:8px}.env-chart-box{min-width:0}.env-chart-title{font-size:12px;font-weight:800;color:#304155;margin:0 0 4px;text-align:center}.dashboard-compact table{font-size:13.8px;table-layout:fixed;width:100%}.dashboard-compact th,.dashboard-compact td{padding:6px 5px;white-space:normal;line-height:1.18;vertical-align:middle}.dashboard-compact th{text-transform:none;letter-spacing:0;font-size:12.7px}.dashboard-compact .table-wrap{overflow-x:hidden}.dashboard-compact .tag{font-size:12.2px;padding:3px 7px}.dashboard-compact .chai-mini{padding:12px}.dashboard-compact .chai-mini p{margin:4px 0}.dashboard-compact .chai-mini .help{font-size:13.4px;line-height:1.28}.dashboard-compact #ouillageAlerts{font-size:11.5px;display:flex;gap:5px;flex-wrap:wrap;margin-top:4px!important}.dashboard-compact #envSummaryTable th:nth-child(1),.dashboard-compact #envSummaryTable td:nth-child(1){width:13%}.dashboard-compact #envSummaryTable th:nth-child(6),.dashboard-compact #envSummaryTable td:nth-child(6){width:17%}.dashboard-compact #lossSummaryTable th:nth-child(1),.dashboard-compact #lossSummaryTable td:nth-child(1){width:11%}.dashboard-compact #lossSummaryTable th,.dashboard-compact #lossSummaryTable td{padding-left:3px;padding-right:3px}@media(max-width:1250px){.dashboard-layout{grid-template-columns:1fr}.dashboard-compact .chart-canvas{height:175px}}
+
+    /* Plan physique du Chai n°3 */
+    .chai-map-layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;align-items:start}
+    .chai-map-wrap{overflow:auto;background:#fff;border:1px solid var(--line);border-radius:20px;padding:18px}
+    .chai-map{min-width:1680px;display:grid;grid-template-columns:repeat(18,74px);grid-auto-rows:auto;gap:22px 16px;align-items:end}
+    .rang-block{display:flex;flex-direction:column;align-items:center;gap:4px}
+    .rang-title{width:100%;background:#fff;border:1px solid #cfc8bb;border-radius:6px;text-align:center;font-weight:900;padding:6px 0;color:#111}
+    .rang-cols{display:grid;grid-template-columns:1fr 1fr;gap:3px;width:100%}
+    .etage-label{font-size:10px;text-align:center;color:#66717f;background:#fafafa;border:1px solid #e5ded2;padding:4px 2px;line-height:1.1}
+    .barrique-cell{height:14px;border:1px solid #5f5a55;background:#fff;cursor:pointer;position:relative;font-size:7px;display:flex;align-items:center;justify-content:center;color:#111;overflow:hidden;line-height:1;text-align:center;font-weight:650}
+    .barrique-cell.exists{background:#fff}.barrique-cell.inexistante{background:#f4f4f4;color:#bbb;cursor:not-allowed;border-color:#ddd}.barrique-cell.selected{outline:3px solid #17283d;z-index:2}.barrique-cell.filled{font-weight:900;color:#111}.barrique-cell.filled::after{content:"";position:absolute;inset:0;border:1px solid rgba(0,0,0,.25);pointer-events:none}
+    .chai-map-legend{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-bottom:14px;font-size:13px;color:#405469}
+    .legend-square{width:20px;height:14px;border:1px solid #6f665d;display:inline-block;vertical-align:middle;margin-right:6px;background:#fff}.legend-square.none{background:#f4f4f4;border-color:#ddd}.legend-square.gv{background:#f08abb}.legend-square.fl{background:#9fc0e8}.legend-square.pa{background:#b9dda8}.legend-square.vcc{background:#ffd84d}.legend-square.used{background:#ddd;box-shadow:inset 0 0 0 2px rgba(0,0,0,.18)}
+    .selection-panel{position:sticky;top:96px}.barrique-summary{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}.mini-kpi{background:#f7f3eb;border:1px solid var(--line);border-radius:14px;padding:10px}.mini-kpi strong{display:block;font-size:20px}.cell-comment{font-size:6px;font-weight:900;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.color-dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+
+    .form-grid{display:grid;grid-template-columns:repeat(3,minmax(160px,1fr));gap:12px}
+    .form-grid label{font-size:12px;color:var(--muted);font-weight:800}.form-grid input,.form-grid select{width:100%}
+    .range-note{background:#eef5fb;border:1px solid #cfe0ef;border-radius:14px;padding:10px 12px;color:#284762;font-weight:700;margin-bottom:12px}
+    @media(max-width:1100px){.chai-map-layout{grid-template-columns:1fr}.selection-panel{position:relative;top:auto}}
+    @media(max-width:980px){.side{position:relative;display:block}.brand{margin-bottom:12px}.nav{display:grid;grid-template-columns:1fr 1fr}.main{padding:18px}.kpis,.two,.three,.row-fields{grid-template-columns:1fr}.top{display:block}.actions{margin-top:12px}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><div class="logo">C</div><div><h1>Pilotage consume</h1><p>Chais 1 / 2 / 3</p></div></div>
+    <nav class="nav">
+      <button class="active" data-page="dashboard">Tableau de bord</button>
+      <button data-page="env">Conditions environnement</button>
+      <button data-page="weather">Prévisions météo</button>
+      <button data-page="planChai3">Plan du chai 3</button>
+      <button data-page="barriquesPlan">Saisie plan chai 3</button>
+      <button data-page="plan">Synthèse lots</button>
+      <button data-page="impact">Calculs volume & euros</button>
+      <button data-page="params">Paramètres modèle</button>
+      <button data-page="backup">Sauvegarde</button>
+    </nav>
+    <div class="note"><strong>Principe de calcul</strong><br>Chaque lot démarre à 225 L par barrique à sa date de remplissage. L’équation donne une valeur en g/barrique/j, généralement négative : elle est cumulée telle quelle et ajoutée aux 225 L. Les classes de risque sont uniquement visuelles.</div>
+  </aside>
+  <main class="main">
+    <section id="dashboard" class="section active dashboard-compact">
+      <div class="top"><div><h2>Tableau de bord</h2><p>Synthèse compacte des conditions environnementales, de la consume et du cumul des pertes par chai.</p></div><div class="actions"><button class="btn" onclick="downloadJSON()">Exporter données</button><button class="btn primary" onclick="recalcAll()">Recalculer</button></div></div>
+      <div class="grid kpis" id="kpiGrid"></div>
+      <div class="card" id="weatherDashboardCard" style="margin-top:10px"></div>
+      <div class="dashboard-layout">
+        <div class="dashboard-left">
+          <div class="card"><h3>Conditions environnementales récentes</h3><p class="help" id="envSummaryHelp">Dernier jour saisi et moyenne calculée sur la dernière semaine disponible.</p><div class="table-wrap"><table id="envSummaryTable"></table></div></div>
+          <div class="card"><h3>Estimation de la consume</h3><p class="help" id="lossSummaryHelp">Perte estimée à partir des conditions environnementales et des barriques actives.</p><div class="table-wrap"><table id="lossSummaryTable"></table></div></div>
+          <div class="grid three" id="chaiCards"></div>
+        </div>
+        <div class="dashboard-right">
+          <div class="card canvas-card compact-chart"><h3>Température et HR par chai</h3><p class="help">Axe X = toutes les dates saisies. Température à gauche, HR à droite, avec axes fixes pour comparer les scénarios.</p><div class="env-split"><div class="env-chart-box"><p class="env-chart-title">Température (10–20 °C)</p><canvas id="tempChart" class="chart-canvas env-canvas"></canvas></div><div class="env-chart-box"><p class="env-chart-title">Humidité relative (50–100 %)</p><canvas id="hrChart" class="chart-canvas env-canvas"></canvas></div></div></div>
+          <div class="card canvas-card compact-chart"><h3>Consume journalière par chai</h3><p class="help">Axe X = jours après remplissage ; la date correspondant à J0 est indiquée à côté de la légende.</p><canvas id="lineChart" class="chart-canvas"></canvas></div>
+          <div class="card canvas-card compact-chart"><h3>Cumul des pertes par chai</h3><p class="help">Cumul signé en L/barrique depuis J0 ; la date de remplissage est indiquée à côté de la légende. Seuil à -1 L/barrique.</p><canvas id="volumeChart" class="chart-canvas volume-canvas"></canvas><div id="ouillageAlerts"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="env" class="section">
+      <div class="top"><div><h2>Conditions environnement</h2><p>Saisir les températures et humidités relatives des 3 chais. Les deltas sont calculés uniquement par rapport à la journée précédente.</p></div><div class="actions"><button class="btn" onclick="addEnvRow()">+ Ajouter une journée</button><button class="btn warn" onclick="loadCSVPrompt()">Importer CSV</button><button class="btn" onclick="downloadEnvCSV()">Exporter CSV</button></div></div>
+      <div class="card"><h3>Saisie quotidienne</h3><p class="help">Pour chaque chai : Médiane HR = HR saisie du jour ; ΔHR = HR du jour - HR de la veille ; Médiane T = T saisie du jour ; ΔT = T du jour - T de la veille. La première date sert de point de départ : Δ = 0.</p><div class="table-wrap"><table id="envTable"></table></div></div>
+    </section>
+
+    <section id="weather" class="section">
+      <div class="top"><div><h2>Prévisions météo extérieure</h2><p>Saisir les prévisions de la semaine suivante pour surveiller les risques liés aux fortes températures et aux HR extérieures basses.</p></div><div class="actions"><button class="btn" onclick="addWeatherRow()">+ Ajouter une journée</button><button class="btn warn" onclick="loadWeatherCSVPrompt()">Importer CSV</button><button class="btn" onclick="downloadWeatherCSV()">Exporter CSV</button><button class="btn primary" onclick="recalcAll()">Actualiser</button></div></div>
+      <div class="grid two">
+        <div class="card"><h3>Saisie des prévisions</h3><p class="help">Ces données ne modifient pas encore le calcul de consume des chais. Elles servent d’indicateur d’alerte pour anticiper les situations extérieures à risque.</p><div class="table-wrap"><table id="weatherTable"></table></div></div>
+        <div class="card"><h3>Seuils d’alerte extérieure</h3><div class="row-fields"><label>Température extérieure haute<br><input id="weatherTempHigh" type="number" step="0.1" onchange="state.weatherSettings.tempHigh=Number(this.value)||0;recalcAll()"> °C</label><label>HR extérieure basse<br><input id="weatherHrLow" type="number" step="0.1" onchange="state.weatherSettings.hrLow=Number(this.value)||0;recalcAll()"> %</label></div><p class="help">Par défaut : alerte si T extérieure ≥ 30 °C ou HR extérieure ≤ 45 %. Tu peux ajuster ces seuils selon la sensibilité observée des chais.</p><div id="weatherAlertPreview"></div></div>
+      </div>
+    </section>
+
+    <section id="planChai3" class="section">
+      <div class="top"><div><h2>Plan physique du Chai n°3</h2><p>Visualisation des rangs 1 à 17. Une colonne = un étage de rang ; colonne gauche/droite adaptée selon le rang pour respecter la disposition physique du chai.</p></div><div class="actions"><button class="btn primary" onclick="page('barriquesPlan')">Saisir les rangs</button></div></div>
+      <div class="chai-map-layout">
+        <div class="card">
+          <h3>Plan du chai n°3</h3>
+          <div class="chai-map-legend">
+            <span><i class="legend-square"></i>Vide / non renseigné</span>
+            <span><i class="legend-square gv"></i>GV</span>
+            <span><i class="legend-square fl"></i>FL</span>
+            <span><i class="legend-square pa"></i>PA</span>
+            <span><i class="legend-square vcc"></i>VCC</span>
+            <span><i class="legend-square none"></i>Emplacement inexistant</span>
+          </div>
+          <p class="help">Clique sur une case pour afficher sa position. Les cases vides restent blanches ; les emplacements inexistants sont grisés. Clique sur une case pour la saisir directement dans l’onglet de saisie du plan. Les cases renseignées prennent la couleur de la cuvée.</p>
+          <div class="chai-map-wrap"><div id="chai3Map" class="chai-map"></div></div>
+        </div>
+        <div class="card selection-panel">
+          <h3>Barrique sélectionnée</h3>
+          <div id="selectedBarriqueBox" class="warning">Aucune barrique sélectionnée.</div>
+          <p class="help">Clique sur une case pour pré-remplir l’onglet <strong>Saisie plan chai 3</strong>, puis complète la plage de barriques.</p>
+          <button class="btn primary" onclick="page('barriquesPlan')">Saisir les rangs</button>
+          <div class="barrique-summary" id="barriqueSummary"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="plan" class="section">
+      <div class="top"><div><h2>Synthèse lots en barriques</h2><p>Saisir les lots globalement par chai. Le Chai 3 peut être renseigné manuellement ici, ou automatiquement via le plan physique si tu souhaites détailler les barriques.</p></div><div class="actions"><button class="btn" onclick="addLot('1ère année')">+ Lot manuel</button><button class="btn primary" onclick="recalcAll()">Actualiser</button></div></div>
+      <div class="card"><h3>Lots en barriques</h3><div class="warning"><strong>Chai 3 :</strong> tu peux saisir un lot global directement dans ce tableau. Si tu renseignes aussi le plan physique, les lignes issues du plan apparaissent en lecture seule. Attention à ne pas compter deux fois le même lot : utilise soit une ligne manuelle, soit le plan détaillé pour un même volume.</div><div class="table-wrap"><table id="planTable"></table></div></div>
+    </section>
+
+
+    <section id="barriquesPlan" class="section">
+      <div class="top"><div><h2>Saisie du plan du Chai n°3</h2><p>Saisie par rang, étage et intervalle de numéros pour renseigner rapidement les emplacements du plan physique.</p></div><div class="actions"><button class="btn primary" onclick="saveBarriqueFromForm()">Enregistrer la plage</button><button class="btn" onclick="page('planChai3')">Voir le plan</button></div></div>
+      <div class="grid two">
+        <div class="card">
+          <h3>Saisie par plage de barriques</h3>
+          <div class="range-note">Exemple : Rang 4 · étage inférieur · n°1 à 20 · vin GV. L’application remplit toutes les barriques existantes de la plage et ignore les emplacements inexistants.</div>
+          <div class="form-grid">
+            <label>Rang<br><select id="barRang" onchange="updateBarriqueNumberOptions()"></select></label>
+            <label>Étage<br><select id="barEtage" onchange="updateBarriqueNumberOptions()"><option value="sup">Étage supérieur</option><option value="inf">Étage inférieur</option></select></label>
+            <label>N° début<br><select id="barNumeroStart" onchange="syncEndIfNeeded()"></select></label>
+            <label>N° fin<br><select id="barNumeroEnd"></select></label>
+            <label>Vin / cuvée<br><select id="barVin"><option value=""></option><option>GV</option><option>FL</option><option>PA</option><option>VCC</option><option>Presse</option><option>Primeurs</option></select></label>
+            <label>Millésime<br><input id="barMillesime" type="number" step="1" placeholder="2025"></label>
+            <label>Lot / cuve<br><input id="barLot" placeholder="Ex : Tain 4"></label>
+            <label>Volume/barrique L<br><input id="barVolume" type="number" step="0.1" value="225"></label>
+            <label>Date remplissage<br><input id="barFillDate" type="date"></label>
+            <label>Statut<br><select id="barStatut"><option>En élevage</option><option>Vide</option><option>À vérifier</option><option>Sortie</option></select></label>
+          </div>
+          <label style="display:block;margin-top:12px;font-size:12px;color:var(--muted);font-weight:800">Commentaire à afficher sur les cases<br><input id="barComment" style="width:100%" placeholder="Dégustation, Tonneliers, Option..."></label>
+          <div class="actions" style="margin-top:14px"><button class="btn primary" onclick="saveBarriqueFromForm()">Enregistrer la plage</button><button class="btn danger" onclick="deleteSelectedBarrique()">Supprimer la plage</button><button class="btn" onclick="clearBarriqueForm()">Nouvelle saisie</button></div>
+        </div>
+        <div class="card">
+          <h3>Aide</h3>
+          <div class="equation">Chai n°3 uniquement<br>Une colonne = un étage de rang<br>Rangs 1/3/5/7/9/11/14/16 : sup. à gauche, inf. à droite<br>Rangs 2/4/6/8/10/12/13/15/17 : inf. à gauche, sup. à droite<br>Cases vides = blanc</div>
+          <p class="help">Le plan sert à se repérer. En cliquant sur une case du plan, cette barrique est sélectionnée ici automatiquement. Tu peux ensuite élargir la plage avec “N° fin”.</p>
+          <button class="btn" onclick="page('planChai3')">Retour au plan du chai 3</button>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <h3>Tableau des barriques renseignées sur le plan</h3>
+        <div class="table-wrap"><table id="barriquesTable"></table></div>
+      </div>
+    </section>
+
+    <section id="impact" class="section">
+      <div class="top"><div><h2>Calculs volume & euros</h2><p>Suivi du cumul signé journalier en litres, équivalent bouteilles, euros et volume restant.</p></div><div class="actions"><button class="btn" onclick="downloadImpactCSV()">Exporter impact CSV</button></div></div>
+      <div class="grid kpis" id="impactKpis"></div>
+      <div class="card" style="margin-top:16px"><h3>Impact économique par cuvée</h3><div id="barImpact"></div></div>
+      <div class="card" style="margin-top:16px"><h3>Impact détaillé par lot</h3><div class="table-wrap"><table id="impactTable"></table></div></div>
+      <div class="card" style="margin-top:16px"><h3>Calculs journaliers par chai</h3><div class="table-wrap"><table id="dailyCalcTable"></table></div></div>
+    </section>
+
+    <section id="params" class="section">
+      <div class="top"><div><h2>Paramètres modèle</h2><p>Modifier les coefficients de l'équation et les prix par cuvée.</p></div><div class="actions"><button class="btn primary" onclick="recalcAll()">Recalculer</button><button class="btn warn" onclick="resetDemo()">Réinitialiser exemple</button></div></div>
+      <div class="grid two">
+        <div class="card"><h3>Équation de perte de masse</h3><div id="eqBox" class="equation"></div><div class="row-fields" style="margin-top:14px"><label>Constante<br><input type="number" step="0.01" id="coefConst"></label><label>Coeff. Médiane HR<br><input type="number" step="0.01" id="coefMedHR"></label><label>Coeff. Delta HR<br><input type="number" step="0.01" id="coefDeltaHR"></label><label>Coeff. Delta T<br><input type="number" step="0.01" id="coefDeltaT"></label><label>Coeff. Médiane T<br><input type="number" step="0.01" id="coefMedT"></label></div><p class="help">Formule : perte g/barrique/j = constante + a×MédianeHR + b×DeltaHR + c×DeltaT + d×MédianeT.</p></div>
+        <div class="card"><h3>Calcul des variables</h3><div class="equation">MédianeHR = HR J saisie<br>DeltaHR = HR J - HR J-1<br>MédianeT = T J saisie<br>DeltaT = T J - T J-1</div><p class="help">L’air extérieur n’est pas pris en compte. La première journée sert uniquement de référence : les deltas valent 0 pour cette première ligne.</p><p class="help"><strong>Important :</strong> les classes de risque sont uniquement des indicateurs visuels. Elles ne modifient jamais la perte calculée. Le volume restant est calculé en ajoutant le cumul signé aux 225 L/barrique. L’impact économique utilise la valeur absolue du volume manquant.</p></div>
+      </div>
+      <div class="card" style="margin-top:16px"><h3>Prix par bouteille</h3><div id="priceInputs" class="row-fields"></div><p class="help">Conversion utilisée : 1 g ≈ 1 mL, 1 bouteille = 0,75 L. L’impact économique est calculé avec le prix de la cuvée.</p></div>
+    </section>
+
+
+    <section id="backup" class="section">
+      <div class="top"><div><h2>Sauvegarde & partage</h2><p>Sécuriser les données de l’application et éviter les versions différentes selon les ordinateurs.</p></div><div class="actions"><button class="btn primary" onclick="downloadJSON()">Télécharger sauvegarde complète</button><button class="btn warn" onclick="loadJSONBackup()">Restaurer une sauvegarde</button></div></div>
+      <div class="card">
+        <h3>État de la sauvegarde locale</h3>
+        <div id="backupStatus" class="backup-status"></div>
+        <p class="warning"><strong>Point important :</strong> les données de l’application sont enregistrées localement dans le navigateur. Deux ordinateurs peuvent donc avoir deux versions différentes. Pour travailler à plusieurs, il faut utiliser un fichier de sauvegarde JSON commun, stocké par exemple dans SharePoint/OneDrive, puis le restaurer avant de travailler.</p>
+        <div class="backup-actions">
+          <button class="btn primary" onclick="downloadJSON()">Exporter la sauvegarde complète JSON</button>
+          <button class="btn warn" onclick="loadJSONBackup()">Importer / restaurer une sauvegarde JSON</button>
+          <button class="btn" onclick="downloadEnvCSV()">Exporter uniquement les conditions environnementales CSV</button>
+          <button class="btn" onclick="downloadWeatherCSV()">Exporter uniquement les prévisions météo CSV</button>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <h3>Mode d’utilisation conseillé</h3>
+        <div class="table-wrap"><table>
+          <tr><th>Situation</th><th>Bonne pratique</th></tr>
+          <tr><td>Une seule personne travaille</td><td>Exporter une sauvegarde JSON à la fin de chaque modification importante.</td></tr>
+          <tr><td>Plusieurs personnes travaillent</td><td>Une seule personne modifie à la fois. Elle restaure d’abord la dernière sauvegarde JSON, modifie, puis exporte une nouvelle sauvegarde.</td></tr>
+          <tr><td>Changement d’ordinateur</td><td>Restaurer la dernière sauvegarde JSON avant d’utiliser l’application.</td></tr>
+          <tr><td>Données environnementales seules</td><td>Conserver le CSV source, puis l’importer ou l’exporter selon les corrections.</td></tr>
+        </table></div>
+      </div>
+    </section>
+  </main>
+</div><div class="footer-status" id="toast">Recalcul effectué</div>
+<script>
+const months=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Sept.','Oct.','Nov.','Déc.'];
+const chais=['Chai 1','Chai 2','Chai 3'];
+const cuvees=['GV','FL','PA','VCC','Presse','Primeurs'];
+let state={coefficients:{constant:-125.55,medHR:1.40,deltaHR:1.20,deltaT:10.99,medT:0.06}, prices:{GV:0,FL:0,PA:0,VCC:0,Presse:0,Primeurs:0}, env:[], weather:[], weatherSettings:{tempHigh:30,hrLow:45}, lots:[], barriques:[], selectedBarrique:null, daily:[], impact:[], meta:{lastLocalSave:null,lastExport:null,lastImport:null,appVersion:'v18 sans données économiques par défaut'} };
+function pad(n){return String(n).padStart(2,'0')}
+function iso(d){return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`}
+function fmt(n,d=1){return Number.isFinite(n)?n.toLocaleString('fr-FR',{maximumFractionDigits:d,minimumFractionDigits:d}):'—'}
+function fmtRaw(v){return Number.isFinite(Number(v))?Number(v).toFixed(1).replace('.0',''):''}
+function euro(n){return Number.isFinite(n)?n.toLocaleString('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}):'—'}
+function num(v){return Number(String(v??'').replace(',','.'))||0}
+function riskClass(v){const a=Math.abs(v); if(a<15)return 'faible'; if(a<30)return 'moderee'; if(a<50)return 'forte'; return 'critique'}
+function riskLabel(v){return {faible:'Faible',moderee:'Modérée',forte:'Forte',critique:'Critique'}[riskClass(v)]}
+function defaultEnv(){let arr=[]; for(let i=0;i<120;i++){let d=new Date(2026,0,1+i); let wave=Math.sin(i/8); arr.push({date:iso(d), t1:13.0+wave*1.1, hr1:77+Math.sin(i/10)*5, t2:13.8+Math.sin(i/7)*1.0, hr2:73+Math.cos(i/9)*6, t3:12.2+Math.sin(i/11)*1.5, hr3:82+Math.sin(i/12)*4});} return arr;}
+function defaultWeather(){
+  let base=state.env && state.env.length ? new Date(state.env[state.env.length-1].date+'T00:00') : new Date();
+  if(isNaN(base))base=new Date();
+  let arr=[];
+  for(let i=1;i<=7;i++){
+    const d=new Date(base); d.setDate(d.getDate()+i);
+    arr.push({date:iso(d), tExt:'', hrExt:'', commentaire:''});
+  }
+  return arr;
+}
+function defaultLots(){return [
+  {chai:'Chai 1',cuvee:'GV',millesime:2025,elevage:'1ère année',barrels:70,fillDate:'2026-01-01',exitDate:''},
+  {chai:'Chai 1',cuvee:'GV',millesime:2024,elevage:'2ème année',barrels:150,fillDate:'2026-01-01',exitDate:''},
+  {chai:'Chai 1',cuvee:'FL',millesime:2025,elevage:'1ère année',barrels:63,fillDate:'2026-01-01',exitDate:''},
+  {chai:'Chai 1',cuvee:'FL',millesime:2024,elevage:'2ème année',barrels:149.5,fillDate:'2026-01-01',exitDate:''},
+  {chai:'Chai 2',cuvee:'PA',millesime:2025,elevage:'1ère année',barrels:39,fillDate:'2026-02-15',exitDate:''},
+  {chai:'Chai 2',cuvee:'Presse',millesime:2025,elevage:'1ère année',barrels:46.5,fillDate:'2026-02-15',exitDate:''},
+  {chai:'Chai 3',cuvee:'GV',millesime:2024,elevage:'2ème année',barrels:150,fillDate:'2026-01-01',exitDate:''},
+  {chai:'Chai 3',cuvee:'FL',millesime:2024,elevage:'2ème année',barrels:149.5,fillDate:'2026-01-01',exitDate:''}
+]}
+function resetDemo(){state.env=defaultEnv(); state.weather=defaultWeather(); state.weatherSettings={tempHigh:30,hrLow:45}; state.lots=defaultLots(); state.coefficients={constant:-125.55,medHR:1.40,deltaHR:1.20,deltaT:10.99,medT:0.06}; state.modes={clamp:false}; state.prices={GV:0,FL:0,PA:0,VCC:0,Presse:0,Primeurs:0}; state.barriques=[]; state.selectedBarrique=null; recalcAll(); toast('Exemple réinitialisé')}
+function migrate(s){if(!s)return null; if(s.plan && !s.lots){s.lots=s.plan.flatMap(p=>{let out=[]; if(Number(p.a1)>0) out.push({chai:p.chai,cuvee:p.cuvee,millesime:2025,elevage:'1ère année',barrels:Number(p.a1)||0,fillDate:'2026-01-01',exitDate:''}); if(Number(p.a2)>0) out.push({chai:p.chai,cuvee:p.cuvee,millesime:2024,elevage:'2ème année',barrels:Number(p.a2)||0,fillDate:'2026-01-01',exitDate:''}); return out}); delete s.plan;} s.modes={clamp: s.modes && typeof s.modes.clamp === 'boolean' ? s.modes.clamp : false}; if(!s.lots)s.lots=[]; if(!s.weather)s.weather=[]; s.weatherSettings={tempHigh:30,hrLow:45,...(s.weatherSettings||{})}; if(!s.barriques)s.barriques=[]; if(!s.selectedBarrique)s.selectedBarrique=null; s.prices={GV:0,FL:0,PA:0,VCC:0,Presse:0,Primeurs:0,...(s.prices||{})}; return s;}
+function ensureMeta(){if(!state.meta)state.meta={}; if(!state.meta.appVersion)state.meta.appVersion='v13 VCC jaune et étages inversés'}
+function localDateTimeLabel(isoStr){if(!isoStr)return 'Jamais'; try{return new Date(isoStr).toLocaleString('fr-FR')}catch(e){return isoStr}}
+function save(){ensureMeta(); state.meta.lastLocalSave=new Date().toISOString(); localStorage.setItem('consumeChaiAppV6',JSON.stringify(state)); renderBackupStatus()}
+function load(){try{let s=JSON.parse(localStorage.getItem('consumeChaiAppV6')) || JSON.parse(localStorage.getItem('consumeChaiAppV5')) || JSON.parse(localStorage.getItem('consumeChaiAppV3')) || JSON.parse(localStorage.getItem('consumeChaiAppV2')) || JSON.parse(localStorage.getItem('consumeChaiApp')); s=migrate(s); if(s&&s.env&&s.lots){state={...state,...s}; ensureMeta(); recalcAll();} else resetDemo()}catch(e){resetDemo()} renderBackupStatus()}
+function calculPerteVin({temperature, humidite, deltaTemperature=0, deltaHumidite=0, chai='', date=''}){
+  const c=state.coefficients;
+  // Équation centrale de consume, facile à remplacer si le modèle évolue.
+  // La valeur retournée est en g/barrique/jour. Une perte est généralement négative.
+  return c.constant + c.medHR*humidite + c.deltaHR*deltaHumidite + c.deltaT*deltaTemperature + c.medT*temperature;
+}
+function computeLoss(row, prev, chaiIdx){const t=num(row['t'+chaiIdx]), hr=num(row['hr'+chaiIdx]); const pt=prev?num(prev['t'+chaiIdx]):t, phr=prev?num(prev['hr'+chaiIdx]):hr;
+  // Sans données horaires, la valeur saisie du jour est considérée comme la médiane journalière.
+  const medHR=hr; const deltaHR=hr-phr; const medT=t; const deltaT=t-pt;
+  const raw=calculPerteVin({temperature:medT, humidite:medHR, deltaTemperature:deltaT, deltaHumidite:deltaHR, chai:chais[chaiIdx-1], date:row.date});
+  let loss=Number.isFinite(raw)?raw:0;
+  // La valeur est conservée avec son signe. Une perte est généralement négative.
+  return {loss,raw,medHR,deltaHR,medT,deltaT};}
+function isActiveLot(lot,date){if(!lot.fillDate || date<lot.fillDate)return false; if(lot.exitDate && date>lot.exitDate)return false; return true;}
+
+function inferElevageFromMillesime(millesime){
+  const y=Number(millesime)||0;
+  if(y>=2025)return '1ère année';
+  if(y>0)return '2ème année';
+  return '';
+}
+function barriqueIsActiveForLot(b){
+  const statut=String(b.statut||'').toLowerCase();
+  return !!b.vin && statut!=='vide' && statut!=='sortie';
+}
+function buildChai3LotsFromPlan(){
+  const groups={};
+  (state.barriques||[]).filter(barriqueIsActiveForLot).forEach(b=>{
+    const cuvee=b.vin||'';
+    const millesime=b.millesime||'';
+    const fillDate=b.fillDate||'';
+    const lotLabel=b.lot||'';
+    const key=[cuvee,millesime,fillDate,lotLabel].join('|');
+    if(!groups[key])groups[key]={source:'planChai3',chai:'Chai 3',cuvee,millesime,elevage:inferElevageFromMillesime(millesime),barrels:0,fillDate,exitDate:'',lot:lotLabel,planVolume:0,missingFillDate:!fillDate};
+    groups[key].barrels+=1;
+    groups[key].planVolume+=Number(b.volume)||225;
+    if(!fillDate)groups[key].missingFillDate=true;
+  });
+  return Object.values(groups).sort((a,b)=>String(a.cuvee).localeCompare(String(b.cuvee)) || String(a.millesime).localeCompare(String(b.millesime)) || String(a.fillDate).localeCompare(String(b.fillDate)) || String(a.lot).localeCompare(String(b.lot)));
+}
+function syncLotsFromChai3Plan(){
+  // On conserve toutes les lignes saisies manuellement, y compris le Chai 3.
+  // Les lignes issues du plan physique sont ajoutées en plus et restent en lecture seule.
+  const manual=(state.lots||[]).filter(l=>l.source!=='planChai3');
+  state.lots=[...manual,...buildChai3LotsFromPlan()];
+}
+function recalcAll(){syncLotsFromChai3Plan(); state.env.sort((a,b)=>String(a.date).localeCompare(String(b.date))); state.daily=[]; state.impact=[]; state.env.forEach((row,i)=>{let d={date:row.date, month:new Date(row.date+'T00:00').getMonth()}; chais.forEach((chai,idx)=>d[chai]=computeLoss(row,state.env[i-1],idx+1)); state.daily.push(d)});
+  state.lots.forEach((lot,idx)=>{let barrels=num(lot.barrels), startL=barrels*225, cumSignedL=0; let monthlyL=Array(12).fill(0), monthlyE=Array(12).fill(0), monthlyB=Array(12).fill(0); let daysActive=0, maxDayLoss=0; for(const d of state.daily){if(!isActiveLot(lot,d.date))continue; daysActive++; const daySignedL=(d[lot.chai]?.loss||0)*barrels/1000; cumSignedL+=daySignedL; monthlyL[d.month]+=daySignedL; if(Math.abs(d[lot.chai]?.loss||0)>Math.abs(maxDayLoss)) maxDayLoss=d[lot.chai]?.loss||0;} const price=state.prices[lot.cuvee]||0; for(let m=0;m<12;m++){monthlyB[m]=Math.abs(monthlyL[m])/0.75; monthlyE[m]=monthlyB[m]*price;} const missingL=Math.max(0,-cumSignedL); state.impact.push({...lot,idx,barrels,startL,daysActive,maxDayLoss,liters:monthlyL,bottles:monthlyB,euros:monthlyE,totalL:cumSignedL,missingL,totalB:missingL/0.75,totalE:(missingL/0.75)*price,remainingL:startL+cumSignedL,remainingPct:startL?((startL+cumSignedL)/startL)*100:0});});
+  renderAll(false); save(); toast('Recalcul effectué')}
+function renderAll(doCalc=true){renderParams(); renderEnvTable(); renderWeatherTable(); renderPlanTable(); if(doCalc)recalcAll(); else{renderDashboard(); renderImpact(); renderChai3Map(); drawEnvChart(); drawLineChart(); drawVolumeChart();}}
+function renderParams(){document.getElementById('coefConst').value=state.coefficients.constant;document.getElementById('coefMedHR').value=state.coefficients.medHR;document.getElementById('coefDeltaHR').value=state.coefficients.deltaHR;document.getElementById('coefDeltaT').value=state.coefficients.deltaT;document.getElementById('coefMedT').value=state.coefficients.medT;document.getElementById('eqBox').textContent=`Perte = ${state.coefficients.constant} + ${state.coefficients.medHR} × MédianeHR + ${state.coefficients.deltaHR} × DeltaHR + ${state.coefficients.deltaT} × DeltaT + ${state.coefficients.medT} × MédianeT`;document.getElementById('priceInputs').innerHTML=cuvees.map(c=>`<label>${c}<br><input type="number" step="1" value="${state.prices[c]||0}" onchange="state.prices['${c}']=Number(this.value)||0; recalcAll()"> €/btle</label>`).join('')}
+['coefConst','coefMedHR','coefDeltaHR','coefDeltaT','coefMedT'].forEach(id=>{document.addEventListener('change',e=>{if(e.target.id===id){const map={coefConst:'constant',coefMedHR:'medHR',coefDeltaHR:'deltaHR',coefDeltaT:'deltaT',coefMedT:'medT'};state.coefficients[map[id]]=Number(e.target.value)||0;recalcAll();}})});
+function renderEnvTable(){const head='<tr><th>Date</th><th>T Chai 1</th><th>HR Chai 1</th><th>T Chai 2</th><th>HR Chai 2</th><th>T Chai 3</th><th>HR Chai 3</th><th></th></tr>'; const rows=state.env.map((r,i)=>`<tr><td><input type="date" value="${r.date}" onchange="editEnv(${i},'date',this.value)"></td><td><input type="number" step="0.1" value="${fmtRaw(r.t1)}" onchange="editEnv(${i},'t1',this.value)"></td><td><input type="number" step="0.1" value="${fmtRaw(r.hr1)}" onchange="editEnv(${i},'hr1',this.value)"></td><td><input type="number" step="0.1" value="${fmtRaw(r.t2)}" onchange="editEnv(${i},'t2',this.value)"></td><td><input type="number" step="0.1" value="${fmtRaw(r.hr2)}" onchange="editEnv(${i},'hr2',this.value)"></td><td><input type="number" step="0.1" value="${fmtRaw(r.t3)}" onchange="editEnv(${i},'t3',this.value)"></td><td><input type="number" step="0.1" value="${fmtRaw(r.hr3)}" onchange="editEnv(${i},'hr3',this.value)"></td><td><button class="btn danger" onclick="removeEnv(${i})">Suppr.</button></td></tr>`).join(''); document.getElementById('envTable').innerHTML=head+rows}
+
+function renderWeatherTable(){
+  const t=document.getElementById('weatherTable');
+  if(!t)return;
+  if(!state.weather)state.weather=[];
+  const head='<tr><th>Date</th><th>T extérieure prévue</th><th>HR extérieure prévue</th><th>Commentaire</th><th>Statut</th><th></th></tr>';
+  const rows=state.weather.map((r,i)=>{
+    const tExt=Number(r.tExt), hrExt=Number(r.hrExt);
+    const alertT=Number.isFinite(tExt) && tExt>=Number(state.weatherSettings?.tempHigh||30);
+    const alertH=Number.isFinite(hrExt) && hrExt<=Number(state.weatherSettings?.hrLow||45);
+    const cls=(alertT||alertH)?'critique':'faible';
+    const lab=(alertT&&alertH)?'T haute + HR basse':(alertT?'T haute':(alertH?'HR basse':'Normal'));
+    return `<tr><td><input type="date" value="${r.date||''}" onchange="editWeather(${i},'date',this.value)"></td><td><input type="number" step="0.1" value="${fmtRaw(r.tExt)}" onchange="editWeather(${i},'tExt',this.value)"> °C</td><td><input type="number" step="0.1" value="${fmtRaw(r.hrExt)}" onchange="editWeather(${i},'hrExt',this.value)"> %</td><td><input style="min-width:220px" value="${escapeHtml(r.commentaire||'')}" onchange="editWeather(${i},'commentaire',this.value)" placeholder="Ex : vague de chaud, vent, pluie..."></td><td><span class="tag ${cls}">${lab}</span></td><td><button class="btn danger" onclick="removeWeather(${i})">Suppr.</button></td></tr>`;
+  }).join('');
+  t.innerHTML=head+(rows||'<tr><td colspan="6">Aucune prévision saisie.</td></tr>');
+  const tempInput=document.getElementById('weatherTempHigh'), hrInput=document.getElementById('weatherHrLow');
+  if(tempInput)tempInput.value=state.weatherSettings?.tempHigh??30;
+  if(hrInput)hrInput.value=state.weatherSettings?.hrLow??45;
+  renderWeatherAlerts();
+}
+function editWeather(i,k,v){
+  if(!state.weather)state.weather=[];
+  state.weather[i][k]=(k==='date'||k==='commentaire')?v:(v===''?'':Number(v));
+  recalcAll();
+}
+function removeWeather(i){state.weather.splice(i,1); recalcAll()}
+function addWeatherRow(){
+  if(!state.weather)state.weather=[];
+  let last=state.weather[state.weather.length-1];
+  let d=last && last.date ? new Date(last.date+'T00:00') : new Date();
+  if(isNaN(d))d=new Date();
+  d.setDate(d.getDate()+1);
+  state.weather.push({date:iso(d), tExt:'', hrExt:'', commentaire:''});
+  recalcAll();
+}
+function weatherDayName(dateStr){
+  if(!dateStr)return '';
+  const d=new Date(String(dateStr)+'T00:00');
+  if(isNaN(d))return dateStr;
+  return d.toLocaleDateString('fr-FR',{weekday:'long'}).replace(/^./,c=>c.toUpperCase());
+}
+function weatherDateShort(dateStr){
+  if(!dateStr)return '';
+  const d=new Date(String(dateStr)+'T00:00');
+  if(isNaN(d))return dateStr;
+  return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'});
+}
+function weatherSummaryRows(){
+  const tempHigh=Number(state.weatherSettings?.tempHigh||30), hrLow=Number(state.weatherSettings?.hrLow||45);
+  const rows=(state.weather||[]).filter(r=>r.date).slice().sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  return rows.map(r=>{
+    const tExt=Number(r.tExt), hrExt=Number(r.hrExt);
+    const hasT=Number.isFinite(tExt), hasHr=Number.isFinite(hrExt);
+    const tempAlert=hasT && tExt>=tempHigh;
+    const hrAlert=hasHr && hrExt<=hrLow;
+    const tempLabel=!hasT?'T non renseignée':(tempAlert?'T haute':'T moyenne');
+    const hrLabel=!hasHr?'HR non renseignée':(hrAlert?'HR basse':'HR moyenne');
+    const cls=(tempAlert||hrAlert)?'critique':'faible';
+    return {...r,tExt,hrExt,tempAlert,hrAlert,tempLabel,hrLabel,cls};
+  });
+}
+function weatherAlerts(){
+  return weatherSummaryRows().filter(r=>r.tempAlert||r.hrAlert);
+}
+function renderWeatherAlerts(){
+  const rows=weatherSummaryRows().slice(0,7);
+  const alerts=rows.filter(r=>r.tempAlert||r.hrAlert);
+  const card=document.getElementById('weatherDashboardCard');
+  const preview=document.getElementById('weatherAlertPreview');
+  const tempHigh=Number(state.weatherSettings?.tempHigh||30), hrLow=Number(state.weatherSettings?.hrLow||45);
+  let html='';
+  if(!state.weather || !state.weather.length){
+    html=`<h3>Récap météo extérieure</h3><div class="weather-alert"><strong>Aucune prévision saisie.</strong><br><span class="muted">Renseigne l’onglet Prévisions météo pour obtenir le résumé jour par jour.</span></div>`;
+  }else if(!rows.length){
+    html=`<h3>Récap météo extérieure</h3><div class="weather-alert"><strong>Aucune date de prévision renseignée.</strong><br><span class="muted">Ajoute au moins une date dans l’onglet Prévisions météo.</span></div>`;
+  }else{
+    const boxClass=alerts.length?'weather-alert critique':'weather-alert';
+    const title=alerts.length?`${alerts.length} jour(s) à surveiller sur la semaine de prévisions.`:'Semaine de prévisions sans alerte extérieure.';
+    html=`<h3>Récap météo extérieure</h3><div class="${boxClass}"><strong>${title}</strong><ul>${rows.map(r=>{
+      const valeurs=[];
+      if(Number.isFinite(r.tExt))valeurs.push(`${fmt(r.tExt,1)} °C`);
+      if(Number.isFinite(r.hrExt))valeurs.push(`${fmt(r.hrExt,1)} % HR`);
+      return `<li><strong>${weatherDayName(r.date)}</strong> <span class="muted">${weatherDateShort(r.date)}</span> : <span class="tag ${r.tempAlert?'critique':'faible'}">${r.tempLabel}</span> <span class="tag ${r.hrAlert?'critique':'faible'}">${r.hrLabel}</span>${valeurs.length?' — '+valeurs.join(' · '):''}${r.commentaire?' — '+escapeHtml(r.commentaire):''}</li>`;
+    }).join('')}</ul><span class="muted">Seuils : T haute ≥ ${fmt(tempHigh,1)} °C ; HR basse ≤ ${fmt(hrLow,1)} %.</span></div>`;
+  }
+  if(card)card.innerHTML=html;
+  if(preview)preview.innerHTML=html.replace('<h3>Récap météo extérieure</h3>','');
+}
+
+function editEnv(i,k,v){state.env[i][k]=k==='date'?v:Number(v)||0; recalcAll()}
+function removeEnv(i){state.env.splice(i,1); recalcAll()}
+function addEnvRow(){let last=state.env[state.env.length-1]||{date:'2026-01-01',t1:12,hr1:80,t2:12,hr2:80,t3:12,hr3:80}; let d=new Date(last.date+'T00:00'); d.setDate(d.getDate()+1); state.env.push({...last,date:iso(d)}); recalcAll()}
+function renderPlanTable(){
+  const head=`<tr><th>Source</th><th>Chai</th><th>Cuvée</th><th>Millésime</th><th>Lot / cuve</th><th>Année élevage</th><th>Nb barriques</th><th>Date remplissage</th><th>Date sortie</th><th>Volume initial</th><th></th></tr>`;
+  const rows=state.lots.map((p,i)=>{
+    if(p.source==='planChai3'){
+      const dateWarn=p.fillDate?'':' <span class="tag moderee">date à saisir</span>';
+      return `<tr><td><span class="pill">Plan Chai 3</span></td><td><strong>Chai 3</strong></td><td>${p.cuvee||''}</td><td>${p.millesime||''}</td><td>${escapeHtml(p.lot||'')}</td><td>${p.elevage||''}</td><td><strong>${fmt(p.barrels,0)}</strong></td><td>${p.fillDate||'—'}${dateWarn}</td><td>${p.exitDate||''}</td><td>${fmt((Number(p.barrels)||0)*225,1)} L</td><td><button class="btn" onclick="page('barriquesPlan')">Modifier le plan</button></td></tr>`;
+    }
+    return `<tr><td><span class="pill">Manuel</span></td><td><select onchange="state.lots[${i}].chai=this.value;recalcAll()">${chais.map(c=>`<option ${p.chai===c?'selected':''}>${c}</option>`).join('')}</select></td><td><select onchange="state.lots[${i}].cuvee=this.value;recalcAll()">${cuvees.map(c=>`<option ${p.cuvee===c?'selected':''}>${c}</option>`).join('')}</select></td><td><input type="number" step="1" value="${p.millesime||''}" onchange="state.lots[${i}].millesime=Number(this.value)||'';recalcAll()"></td><td>${escapeHtml(p.lot||'')}</td><td><select onchange="state.lots[${i}].elevage=this.value;recalcAll()"><option ${p.elevage==='1ère année'?'selected':''}>1ère année</option><option ${p.elevage==='2ème année'?'selected':''}>2ème année</option></select></td><td><input type="number" step="0.5" value="${p.barrels}" onchange="state.lots[${i}].barrels=Number(this.value)||0;recalcAll()"></td><td><input type="date" value="${p.fillDate||''}" onchange="state.lots[${i}].fillDate=this.value;recalcAll()"></td><td><input type="date" value="${p.exitDate||''}" onchange="state.lots[${i}].exitDate=this.value;recalcAll()"></td><td>${fmt((Number(p.barrels)||0)*225,1)} L</td><td><button class="btn danger" onclick="state.lots.splice(${i},1);recalcAll()">Suppr.</button></td></tr>`;
+  }).join('') || '<tr><td colspan="11">Aucun lot. Ajoute un lot manuel pour saisir un volume global, y compris pour le Chai 3.</td></tr>';
+  document.getElementById('planTable').innerHTML=head+rows;
+}
+function addLot(elevage){state.lots.push({source:'manual',chai:'Chai 1',cuvee:'GV',millesime:elevage==='1ère année'?2025:2024,elevage,barrels:0,fillDate:'2026-01-01',exitDate:''}); recalcAll()}
+function totals(){const totalL=state.impact.reduce((s,x)=>s+x.totalL,0), missingL=state.impact.reduce((s,x)=>s+(x.missingL||0),0), totalB=state.impact.reduce((s,x)=>s+x.totalB,0), totalE=state.impact.reduce((s,x)=>s+x.totalE,0), initialL=state.impact.reduce((s,x)=>s+x.startL,0), remainingL=state.impact.reduce((s,x)=>s+x.remainingL,0); const byChai=Object.fromEntries(chais.map(c=>[c,state.impact.filter(x=>x.chai===c).reduce((s,x)=>s+x.totalE,0)])); const maxChai=Object.entries(byChai).sort((a,b)=>b[1]-a[1])[0]||['—',0]; return {totalL,missingL,totalB,totalE,initialL,remainingL,byChai,maxChai}}
+function latestEnvWindow(){
+  const rows=state.env.filter(r=>r.date).slice().sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  if(!rows.length)return {lastDate:null, weekStart:null, rows:[], lastRow:null};
+  const lastDate=rows[rows.length-1].date;
+  const start=new Date(lastDate+'T00:00'); start.setDate(start.getDate()-6);
+  const weekStart=iso(start);
+  return {lastDate, weekStart, rows:rows.filter(r=>r.date>=weekStart && r.date<=lastDate), lastRow:rows[rows.length-1]};
+}
+function activeBarrelsForChai(chai,date){return state.lots.filter(l=>l.chai===chai && isActiveLot(l,date)).reduce((s,l)=>s+num(l.barrels),0)}
+function signedLossPerBarrelForDay(chai,date){
+  const d=state.daily.find(x=>x.date===date);
+  if(!d || !d[chai])return 0;
+  return (d[chai].loss||0)/1000;
+}
+function lossLiterPerBarrelForDay(chai,date){return Math.max(0,-signedLossPerBarrelForDay(chai,date))}
+function lossLitersForDay(chai,date){
+  const signedL=signedLossPerBarrelForDay(chai,date)*activeBarrelsForChai(chai,date);
+  return Math.max(0,-signedL);
+}
+function lossSummaryForChai(chai,dates){
+  const perBarrel=dates.reduce((s,date)=>s+lossLiterPerBarrelForDay(chai,date),0);
+  const liters=dates.reduce((s,date)=>s+lossLitersForDay(chai,date),0);
+  return {perBarrel,liters};
+}
+function riskTextFromLoss(lossG){
+  const cls=riskClass(lossG);
+  if(cls==='critique')return 'Alerte critique';
+  if(cls==='forte')return 'Alerte forte';
+  if(cls==='moderee')return 'Vigilance';
+  return 'Normal';
+}
+function renderEnvAndLossSummaries(){
+  const envBox=document.getElementById('envSummaryTable'), lossBox=document.getElementById('lossSummaryTable');
+  if(!envBox || !lossBox)return;
+  const w=latestEnvWindow();
+  if(!w.lastDate){envBox.innerHTML='<tr><td>Aucune donnée environnementale saisie.</td></tr>'; lossBox.innerHTML='<tr><td>Aucune donnée disponible.</td></tr>'; return;}
+  const allDates=state.daily.map(d=>d.date);
+  const envRows=chais.map((chai,idx)=>{
+    const i=idx+1;
+    const tempLast=num(w.lastRow['t'+i]);
+    const hrLast=num(w.lastRow['hr'+i]);
+    const validT=w.rows.map(r=>Number(r['t'+i])).filter(Number.isFinite);
+    const validH=w.rows.map(r=>Number(r['hr'+i])).filter(Number.isFinite);
+    const avgT=validT.length?validT.reduce((a,b)=>a+b,0)/validT.length:NaN;
+    const avgH=validH.length?validH.reduce((a,b)=>a+b,0)/validH.length:NaN;
+    const lastDaily=state.daily.find(d=>d.date===w.lastDate);
+    const lossG=lastDaily && lastDaily[chai] ? lastDaily[chai].loss : 0;
+    const cls=riskClass(lossG);
+    return `<tr><td>${chai}</td><td>${fmt(tempLast,1)} °C</td><td>${fmt(hrLast,1)} %</td><td>${fmt(avgT,1)} °C</td><td>${fmt(avgH,1)} %</td><td><span class="tag ${cls}">${riskTextFromLoss(lossG)}</span><br><span class="muted">${fmt(Math.max(0,-lossG),1)} g/barrique/j</span></td></tr>`;
+  }).join('');
+  envBox.innerHTML='<tr><th>Chai</th><th>T dernier jour</th><th>HR dernier jour</th><th>T moyenne 7 jours</th><th>HR moyenne 7 jours</th><th>Risque consume</th></tr>'+envRows;
+  const weekDates=w.rows.map(r=>r.date);
+  const lossRows=chais.map(chai=>{
+    const last=lossSummaryForChai(chai,[w.lastDate]);
+    const week=lossSummaryForChai(chai,weekDates);
+    const total=lossSummaryForChai(chai,allDates);
+    return {chai,last,week,total};
+  });
+  const sumLiters=(period)=>lossRows.reduce((s,r)=>s+r[period].liters,0);
+  const avgPerBarrel=(period)=>lossRows.length?lossRows.reduce((s,r)=>s+r[period].perBarrel,0)/lossRows.length:0;
+  lossBox.innerHTML='<tr><th>Chai</th><th>J<br>L/bq</th><th>J<br>L totaux</th><th>7 j<br>L/bq</th><th>7 j<br>L totaux</th><th>Total<br>L/bq</th><th>Total<br>L totaux</th></tr>'+
+    lossRows.map(r=>`<tr><td>${r.chai}</td><td>${fmt(r.last.perBarrel,3)}</td><td>${fmt(r.last.liters,2)}</td><td>${fmt(r.week.perBarrel,3)}</td><td>${fmt(r.week.liters,2)}</td><td>${fmt(r.total.perBarrel,3)}</td><td>${fmt(r.total.liters,2)}</td></tr>`).join('')+
+    `<tr class="total-row"><td>Total / moyenne 3 chais</td><td>${fmt(avgPerBarrel('last'),3)}</td><td>${fmt(sumLiters('last'),2)}</td><td>${fmt(avgPerBarrel('week'),3)}</td><td>${fmt(sumLiters('week'),2)}</td><td>${fmt(avgPerBarrel('total'),3)}</td><td>${fmt(sumLiters('total'),2)}</td></tr>`;
+  const help1=document.getElementById('envSummaryHelp'), help2=document.getElementById('lossSummaryHelp');
+  if(help1)help1.innerHTML=`Dernier jour saisi : <span class="summary-date">${w.lastDate}</span> ; moyenne sur les données disponibles du <span class="summary-date">${w.weekStart}</span> au <span class="summary-date">${w.lastDate}</span>. Le risque est basé sur la consume estimée du dernier jour.`;
+  if(help2)help2.innerHTML=`Unités : L/bq = litre par barrique ; L = litres cumulés sur les barriques actives. La ligne Total additionne les litres et moyenne les L/bq.`;
+}
+function renderDashboard(){const t=totals(); document.getElementById('kpiGrid').innerHTML=`<div class="card kpi"><div class="label">Cumul signé de perte</div><div class="value">${fmt(t.totalL,1)} L</div><div class="sub">Valeur négative = perte</div></div><div class="card kpi"><div class="label">Volume restant</div><div class="value">${fmt(t.remainingL,0)} L</div><div class="sub">Initial : ${fmt(t.initialL,0)} L</div></div><div class="card kpi"><div class="label">Impact économique</div><div class="value">${euro(t.totalE)}</div><div class="sub">Calculé sur le volume manquant</div></div>`;
+ document.getElementById('chaiCards').innerHTML=chais.map(c=>{let v=state.daily.reduce((s,d)=>s+(d[c]?.loss||0),0)/Math.max(1,state.daily.length);let l=state.impact.filter(x=>x.chai===c).reduce((s,x)=>s+x.totalL,0);let e=state.impact.filter(x=>x.chai===c).reduce((s,x)=>s+x.totalE,0);let rem=state.impact.filter(x=>x.chai===c).reduce((s,x)=>s+x.remainingL,0);return `<div class="card chai-mini"><h3>${c}</h3><p><span class="tag ${riskClass(v)}">${riskLabel(v)}</span></p><p class="help">Consume moyenne : <strong>${fmt(v,1)} g/barrique/j</strong><br>Cumul signé : <strong>${fmt(l,1)} L</strong><br>Volume restant : <strong>${fmt(rem,1)} L</strong><br>Impact : <strong>${euro(e)}</strong></p></div>`}).join(''); renderEnvAndLossSummaries(); renderWeatherAlerts(); renderBars();}
+function renderBars(){const el=document.getElementById('barImpact'); if(!el)return; const by={}; cuvees.forEach(c=>by[c]=state.impact.filter(x=>x.cuvee===c).reduce((s,x)=>s+x.totalE,0)); const max=Math.max(1,...Object.values(by)); el.innerHTML=Object.entries(by).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`<div class="bar-row"><strong>${c}</strong><div class="bar"><span style="width:${v/max*100}%"></span></div><span>${euro(v)}</span></div>`).join('')}
+function renderImpact(){const t=totals(); document.getElementById('impactKpis').innerHTML=`<div class="card kpi"><div class="label">Cumul signé L</div><div class="value">${fmt(t.totalL,1)}</div></div><div class="card kpi"><div class="label">Litres restants</div><div class="value">${fmt(t.remainingL,0)}</div></div><div class="card kpi"><div class="label">Manque à ouiller L</div><div class="value">${fmt(t.missingL,1)}</div></div><div class="card kpi"><div class="label">Pertes €</div><div class="value">${euro(t.totalE)}</div></div>`; const head='<tr><th>Chai</th><th>Cuvée</th><th>Millésime</th><th>Année</th><th>Barriques</th><th>Remplissage</th><th>Jours actifs</th><th>Volume initial L</th>'+months.map(m=>`<th>${m} L signé</th>`).join('')+'<th>Cumul signé L</th><th>Manque à ouiller L</th><th>Volume restant L</th><th>Eq. btles</th><th>Pertes €</th></tr>'; const rows=state.impact.map(x=>`<tr><td>${x.chai}</td><td>${x.cuvee}</td><td>${x.millesime||''}</td><td>${x.elevage||''}</td><td>${fmt(x.barrels,1)}</td><td>${x.fillDate||''}</td><td>${x.daysActive}</td><td>${fmt(x.startL,1)}</td>${x.liters.map(v=>`<td>${fmt(v,1)}</td>`).join('')}<td><strong>${fmt(x.totalL,1)}</strong></td><td><strong>${fmt(x.missingL||0,1)}</strong></td><td><strong>${fmt(x.remainingL,1)}</strong></td><td>${fmt(x.totalB,0)}</td><td><strong>${euro(x.totalE)}</strong></td></tr>`).join(''); document.getElementById('impactTable').innerHTML=head+rows; renderDailyCalcTable();}
+function renderDailyCalcTable(){const head='<tr><th>Date</th>'+chais.map(c=>`<th>${c} g/barrique/j signé</th><th>Brut équation</th><th>Risque</th><th>Med HR</th><th>ΔHR</th><th>Med T</th><th>ΔT</th>`).join('')+'</tr>'; const rows=state.daily.slice(0,200).map(d=>`<tr><td>${d.date}</td>${chais.map(c=>{let x=d[c]; return `<td>${fmt(x.loss,1)}</td><td>${fmt(x.raw,1)}</td><td><span class="tag ${riskClass(x.loss)}">${riskLabel(x.loss)}</span></td><td>${fmt(x.medHR,1)}</td><td>${fmt(x.deltaHR,1)}</td><td>${fmt(x.medT,1)}</td><td>${fmt(x.deltaT,1)}</td>`}).join('')}</tr>`).join(''); document.getElementById('dailyCalcTable').innerHTML=head+rows;}
+function chartDateLabel(dateStr){
+  if(!dateStr)return '';
+  const parts=String(dateStr).split('-');
+  return parts.length===3 ? `${parts[2]}/${parts[1]}` : dateStr;
+}
+function dateDiffDays(a,b){
+  const da=new Date(String(a)+'T00:00');
+  const db=new Date(String(b)+'T00:00');
+  if(isNaN(da)||isNaN(db))return 0;
+  return Math.round((db-da)/86400000);
+}
+function referenceFillDate(){
+  const dates=(state.lots||[]).map(l=>l.fillDate).filter(Boolean).sort();
+  return dates[0] || (state.daily && state.daily.length ? state.daily[0].date : '');
+}
+function dayAfterFillLabel(dateStr, refDate){
+  if(!dateStr || !refDate)return chartDateLabel(dateStr);
+  const j=dateDiffDays(refDate,dateStr);
+  if(j===0)return 'J0';
+  return j>0 ? `J+${j}` : `J${j}`;
+}
+function dataFromFillDate(data, refDate){
+  if(!refDate)return data;
+  return data.filter(d=>String(d.date)>=String(refDate));
+}
+function drawRelativeDayTicks(ctx, data, left, top, cw, ch, refDate){
+  if(!data.length)return;
+  ctx.fillStyle='#66717f';
+  ctx.font='11px Arial';
+  ctx.textAlign='center';
+  const tickCount=Math.min(5,data.length);
+  for(let i=0;i<tickCount;i++){
+    const idx=Math.round(i*(data.length-1)/Math.max(1,tickCount-1));
+    const x=left+cw*(idx/Math.max(1,data.length-1));
+    ctx.beginPath();ctx.moveTo(x,top+ch);ctx.lineTo(x,top+ch+4);ctx.stroke();
+    ctx.fillText(dayAfterFillLabel(data[idx].date,refDate),x,top+ch+17);
+  }
+  ctx.textAlign='left';
+}
+function drawLegend(ctx, colors, labels, x, y, maxWidth, note=''){
+  ctx.font='12px Arial';
+  const gap=18;
+  const noteGap=22;
+  const itemWidths=labels.map(label=>18+8+ctx.measureText(label).width);
+  const noteWidth=note ? ctx.measureText(note).width : 0;
+  const total=itemWidths.reduce((a,b)=>a+b,0)+gap*(labels.length-1)+(note?noteGap+noteWidth:0);
+  let lx=x+Math.max(0,((maxWidth||total)-total)/2);
+  labels.forEach((label,i)=>{
+    ctx.fillStyle=colors[i];
+    ctx.fillRect(lx,y-9,18,4);
+    ctx.fillStyle='#304155';
+    ctx.fillText(label,lx+26,y-5);
+    lx+=itemWidths[i]+gap;
+  });
+  if(note){
+    lx += noteGap-gap;
+    ctx.fillStyle='#66717f';
+    ctx.font='11px Arial';
+    ctx.fillText(note,lx,y-5);
+  }
+}
+function drawDateTicks(ctx, data, left, top, cw, ch){
+  if(!data.length)return;
+  ctx.fillStyle='#66717f';
+  ctx.font='11px Arial';
+  ctx.textAlign='center';
+  const tickCount=Math.min(5,data.length);
+  for(let i=0;i<tickCount;i++){
+    const idx=Math.round(i*(data.length-1)/Math.max(1,tickCount-1));
+    const x=left+cw*(idx/Math.max(1,data.length-1));
+    ctx.beginPath();ctx.moveTo(x,top+ch);ctx.lineTo(x,top+ch+4);ctx.stroke();
+    ctx.fillText(chartDateLabel(data[idx].date),x,top+ch+17);
+  }
+  ctx.textAlign='left';
+}
+function envRowValue(row, chaiIndex, type){
+  const key=(type==='t'?'t':'hr')+chaiIndex;
+  const v=Number(row[key]);
+  return Number.isFinite(v)?v:null;
+}
+function niceRange(vals, padMin=1){
+  if(!vals.length)return {min:0,max:1};
+  let min=Math.min(...vals), max=Math.max(...vals);
+  const padVal=Math.max(padMin,(max-min)*0.12);
+  min-=padVal; max+=padVal;
+  if(max===min){max=min+1;}
+  return {min,max};
+}
+function drawDualAxisEnvChart(ctx, data, left, top, cw, ch, colors){
+  const tempVals=[], hrVals=[];
+  data.forEach(r=>{
+    for(let ci=1;ci<=3;ci++){
+      const tv=envRowValue(r,ci,'t'); if(tv!==null)tempVals.push(tv);
+      const hv=envRowValue(r,ci,'hr'); if(hv!==null)hrVals.push(hv);
+    }
+  });
+  if(!tempVals.length && !hrVals.length){ctx.fillStyle='#66717f';ctx.font='12px Arial';ctx.fillText('Aucune donnée disponible',left,top+20);return;}
+  // Axes fixes pour faciliter la comparaison entre scénarios et dates
+  const tRange={min:10,max:20};
+  const hRange={min:50,max:100};
+  const right=left+cw;
+
+  ctx.strokeStyle='#d8d1c5'; ctx.lineWidth=1; ctx.font='11px Arial';
+  for(let i=0;i<=4;i++){
+    const y=top+ch*i/4;
+    const tVal=tRange.max-(tRange.max-tRange.min)*i/4;
+    const hVal=hRange.max-(hRange.max-hRange.min)*i/4;
+    ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(right,y);ctx.stroke();
+    ctx.fillStyle='#66717f'; ctx.textAlign='left'; ctx.fillText(fmt(tVal,1),8,y+4);
+    ctx.textAlign='right'; ctx.fillText(fmt(hVal,0),right+42,y+4);
+  }
+
+  ctx.textAlign='left'; ctx.font='12px Arial';
+  ctx.fillStyle='#66717f'; ctx.fillText('Température (°C)',left,top-8);
+  ctx.textAlign='right'; ctx.fillText('HR (%)',right+42,top-8);
+  ctx.textAlign='left';
+
+  // Les courbes sont découpées dans la zone du graphique pour garder les axes fixes propres.
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(left,top,cw,ch);
+  ctx.clip();
+
+  // Température : trait plein
+  chais.forEach((c,ci)=>{
+    ctx.save();
+    ctx.setLineDash([]);
+    ctx.strokeStyle=colors[ci];ctx.lineWidth=2.3;ctx.beginPath();let started=false;
+    data.forEach((r,idx)=>{
+      const v=envRowValue(r,ci+1,'t'); if(v===null)return;
+      const x=left+cw*(idx/Math.max(1,data.length-1));
+      const y=top+ch-((v-tRange.min)/(tRange.max-tRange.min))*ch;
+      if(!started){ctx.moveTo(x,y);started=true;}else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+    ctx.restore();
+  });
+
+  // HR : trait pointillé, même couleur que le chai
+  chais.forEach((c,ci)=>{
+    ctx.save();
+    ctx.setLineDash([7,5]);
+    ctx.strokeStyle=colors[ci];ctx.lineWidth=2.3;ctx.beginPath();let started=false;
+    data.forEach((r,idx)=>{
+      const v=envRowValue(r,ci+1,'hr'); if(v===null)return;
+      const x=left+cw*(idx/Math.max(1,data.length-1));
+      const y=top+ch-((v-hRange.min)/(hRange.max-hRange.min))*ch;
+      if(!started){ctx.moveTo(x,y);started=true;}else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+    ctx.restore();
+  });
+  ctx.restore();
+
+  drawDateTicks(ctx,data,left,top,cw,ch);
+}
+function drawEnvLegend(ctx, colors, labels, x, y, maxWidth){
+  ctx.font='12px Arial';
+  const gap=16;
+  const items=[];
+  labels.forEach(label=>{
+    items.push({label:label+' T', dash:false, width:ctx.measureText(label+' T').width+34});
+    items.push({label:label+' HR', dash:true, width:ctx.measureText(label+' HR').width+34});
+  });
+  const total=items.reduce((s,it)=>s+it.width,0)+gap*(items.length-1);
+  let lx=x+Math.max(0,((maxWidth||total)-total)/2);
+  items.forEach((item,idx)=>{
+    const ci=Math.floor(idx/2);
+    ctx.save();
+    ctx.strokeStyle=colors[ci]; ctx.lineWidth=2;
+    ctx.setLineDash(item.dash?[6,4]:[]);
+    ctx.beginPath(); ctx.moveTo(lx,y-8); ctx.lineTo(lx+20,y-8); ctx.stroke();
+    ctx.restore();
+    ctx.fillStyle='#304155'; ctx.fillText(item.label,lx+26,y-4);
+    lx+=item.width+gap;
+  });
+}
+
+function drawSingleEnvChart(canvasId, kind){
+  const canvas=document.getElementById(canvasId); if(!canvas)return;
+  const ctx=canvas.getContext('2d'); const rect=canvas.getBoundingClientRect();
+  const logicalW=Math.max(170,rect.width), logicalH=Math.max(145,rect.height||165);
+  canvas.width=logicalW*devicePixelRatio; canvas.height=logicalH*devicePixelRatio;
+  ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,canvas.width,canvas.height); ctx.scale(devicePixelRatio,devicePixelRatio);
+  const data=state.env.filter(r=>r.date).slice().sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  if(!data.length){ctx.fillStyle='#66717f';ctx.font='12px Arial';ctx.fillText('Aucune donnée',12,24);return;}
+  const isTemp=kind==='t';
+  const range=isTemp?{min:10,max:20,label:'°C'}:{min:50,max:100,label:'%'};
+  const left=42,top=16,right=10,bottom=52;
+  const cw=Math.max(80,logicalW-left-right), ch=Math.max(70,logicalH-top-bottom);
+  const colors=['#0057B8','#E66100','#009E73'];
+  ctx.strokeStyle='#d8d1c5'; ctx.lineWidth=1; ctx.font='10.5px Arial'; ctx.fillStyle='#66717f'; ctx.textAlign='left';
+  for(let i=0;i<=4;i++){
+    const val=range.max-(range.max-range.min)*i/4;
+    const y=top+ch*i/4;
+    ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(left+cw,y);ctx.stroke();
+    ctx.fillText(fmt(val,isTemp?0:0),6,y+4);
+  }
+  ctx.save(); ctx.beginPath(); ctx.rect(left,top,cw,ch); ctx.clip();
+  chais.forEach((c,ci)=>{
+    ctx.strokeStyle=colors[ci]; ctx.lineWidth=2; ctx.setLineDash([]); ctx.beginPath(); let started=false;
+    data.forEach((r,idx)=>{
+      const v=envRowValue(r,ci+1,kind); if(v===null)return;
+      const x=left+cw*(idx/Math.max(1,data.length-1));
+      const y=top+ch-((v-range.min)/(range.max-range.min))*ch;
+      if(!started){ctx.moveTo(x,y);started=true;}else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+  });
+  ctx.restore();
+  drawDateTicks(ctx,data,left,top,cw,ch);
+  drawLegend(ctx,colors,chais,left,logicalH-8,cw);
+}
+function drawEnvChart(){
+  drawSingleEnvChart('tempChart','t');
+  drawSingleEnvChart('hrChart','hr');
+}
+
+function drawLineChart(){
+  const canvas=document.getElementById('lineChart'); if(!canvas)return;
+  const ctx=canvas.getContext('2d'); const rect=canvas.getBoundingClientRect();
+  const logicalW=Math.max(320,rect.width), logicalH=Math.max(145,rect.height||170);
+  canvas.width=logicalW*devicePixelRatio; canvas.height=logicalH*devicePixelRatio;
+  ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,canvas.width,canvas.height); ctx.scale(devicePixelRatio,devicePixelRatio);
+  const refDate=referenceFillDate(); const data=dataFromFillDate(state.daily.slice(),refDate); const vals=data.flatMap(d=>chais.map(c=>d[c]?.loss||0));
+  let min=Math.min(0,...vals), max=Math.max(10,...vals); if(max===min){max=min+10;}
+  const left=48,top=24,right=12,bottom=60, cw=logicalW-left-right, ch=Math.max(78,logicalH-top-bottom);
+  const colors=['#0057B8','#E66100','#009E73'];
+  ctx.strokeStyle='#d8d1c5'; ctx.lineWidth=1; ctx.font='12px Arial'; ctx.fillStyle='#66717f';
+  for(let i=0;i<=4;i++){let val=max-(max-min)*i/4; let y=top+ch*i/4; ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(left+cw,y);ctx.stroke(); ctx.fillText(fmt(val,0),8,y+4)}
+  drawRelativeDayTicks(ctx,data,left,top,cw,ch,refDate);
+  chais.forEach((c,ci)=>{ctx.strokeStyle=colors[ci];ctx.lineWidth=2;ctx.beginPath();data.forEach((d,i)=>{let x=left+cw*(i/Math.max(1,data.length-1));let y=top+ch-(((d[c].loss||0)-min)/(max-min))*ch; if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)});ctx.stroke();});
+  drawLegend(ctx,colors,chais,left,logicalH-10,cw,refDate ? 'J0 = '+chartDateLabel(refDate) : '');
+  ctx.fillStyle='#66717f'; ctx.font='12px Arial'; ctx.fillText('g/barrique/j',8,12);
+}
+function computeCumulativeLiterPerBarrel(){
+  const totals=Object.fromEntries(chais.map(c=>[c,0]));
+  return state.daily.map(d=>{
+    const row={date:d.date};
+    chais.forEach(c=>{totals[c]+=(d[c]?.loss||0)/1000; row[c]=totals[c];});
+    return row;
+  });
+}
+function computeCumulativeLiterPerBarrelFromFill(){
+  const refDate=referenceFillDate();
+  const totals=Object.fromEntries(chais.map(c=>[c,0]));
+  return dataFromFillDate(state.daily,refDate).map(d=>{
+    const row={date:d.date};
+    chais.forEach(c=>{totals[c]+=(d[c]?.loss||0)/1000; row[c]=totals[c];});
+    return row;
+  });
+}
+function drawVolumeChart(){
+  const canvas=document.getElementById('volumeChart'); if(!canvas)return;
+  const ctx=canvas.getContext('2d'); const rect=canvas.getBoundingClientRect();
+  const logicalW=Math.max(320,rect.width), logicalH=Math.max(140,rect.height||165);
+  canvas.width=logicalW*devicePixelRatio; canvas.height=logicalH*devicePixelRatio;
+  ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,canvas.width,canvas.height); ctx.scale(devicePixelRatio,devicePixelRatio);
+  const refDate=referenceFillDate(); const data=computeCumulativeLiterPerBarrelFromFill(); const vals=data.flatMap(d=>chais.map(c=>d[c]||0));
+  let min=Math.min(-1.2,...vals), max=Math.max(0.2,...vals); if(max===min){max=min+1;}
+  const left=48,top=24,right=12,bottom=60, cw=logicalW-left-right, ch=Math.max(78,logicalH-top-bottom);
+  const colors=['#0057B8','#E66100','#009E73'];
+  ctx.strokeStyle='#d8d1c5'; ctx.lineWidth=1; ctx.font='12px Arial'; ctx.fillStyle='#66717f';
+  for(let i=0;i<=4;i++){let val=max-(max-min)*i/4; let y=top+ch*i/4; ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(left+cw,y);ctx.stroke(); ctx.fillText(fmt(val,1),8,y+4)}
+  // Ligne d'alerte à 1 L/barrique
+  const yAlert=top+ch-((-1-min)/(max-min))*ch;
+  ctx.save(); ctx.setLineDash([6,5]); ctx.strokeStyle='#b23a3a'; ctx.lineWidth=1.5; ctx.beginPath();ctx.moveTo(left,yAlert);ctx.lineTo(left+cw,yAlert);ctx.stroke(); ctx.restore();
+  ctx.fillStyle='#b23a3a'; ctx.font='12px Arial'; ctx.fillText('Alerte -1 L/barrique',left+6,Math.max(top+10,yAlert-6));
+  drawRelativeDayTicks(ctx,data,left,top,cw,ch,refDate);
+  chais.forEach((c,ci)=>{ctx.strokeStyle=colors[ci];ctx.lineWidth=2;ctx.beginPath();data.forEach((d,i)=>{let x=left+cw*(i/Math.max(1,data.length-1));let y=top+ch-(((d[c]||0)-min)/(max-min))*ch; if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)});ctx.stroke();});
+  drawLegend(ctx,colors,chais,left,logicalH-10,cw,refDate ? 'J0 = '+chartDateLabel(refDate) : '');
+  ctx.fillStyle='#66717f'; ctx.font='12px Arial'; ctx.fillText('L/barrique cumulés',8,12);
+  renderOuillageAlerts();
+}
+function renderOuillageAlerts(){
+  const el=document.getElementById('ouillageAlerts'); if(!el)return;
+  const cumul=computeCumulativeLiterPerBarrelFromFill();
+  const alerts=chais.map(c=>{const hit=cumul.find(d=>(d[c]||0)<=-1); return hit?`<span class="tag critique">${c} : seuil -1 L/barrique atteint depuis le ${chartDateLabel(hit.date)}</span>`:`<span class="tag faible">${c} : seuil -1 L/barrique non atteint</span>`;});
+  el.innerHTML=alerts.join(' ');
+}
+function toast(txt){let el=document.getElementById('toast');el.textContent=txt;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1400)}
+const rangsChai3=[
+  {rang:1, inf:45, sup:44},{rang:2, inf:43, sup:42},{rang:3, inf:43, sup:43},
+  {rang:4, inf:43, sup:42},{rang:5, inf:43, sup:42},{rang:6, inf:43, sup:42},
+  {rang:7, inf:43, sup:42},{rang:8, inf:43, sup:42},{rang:9, inf:43, sup:42},
+  {rang:10, inf:43, sup:42},{rang:11, inf:43, sup:42},
+  {rang:12, inf:44, sup:41, missingInf:[31,32], missingSup:[30,31,32]},
+  {rang:13, inf:8, sup:7},{rang:14, inf:8, sup:7},{rang:15, inf:8, sup:7},
+  {rang:16, inf:8, sup:7},{rang:17, inf:8, sup:7}
+];
+const rangOrderTop=[13,14,15,16,17], rangOrderBottom=[12,11,10,9,8,7,6,5,4,3,2,1];
+const vinColors={GV:'#f08abb',FL:'#9fc0e8',PA:'#b9dda8',VCC:'#ffd84d',Presse:'#d8d8d8',Primeurs:'#d1b1ef'};
+const rangPositions={13:[1,1],14:[3,1],15:[4,1],16:[6,1],17:[7,1],12:[1,2],11:[3,2],10:[4,2],9:[6,2],8:[7,2],7:[9,2],6:[10,2],5:[12,2],4:[13,2],3:[15,2],2:[16,2],1:[18,2]};
+function rangConf(r){return rangsChai3.find(x=>x.rang===Number(r))}
+function maxSlots(conf){return Math.max(conf.sup,conf.inf)}
+function isMissing(conf,etage,n){const arr=etage==='sup'?(conf.missingSup||[]):(conf.missingInf||[]);return arr.includes(Number(n))}
+function barKey(rang,etage,numero){return `${rang}|${etage}|${numero}`}
+function findBarrique(rang,etage,numero){return (state.barriques||[]).find(b=>b.key===barKey(rang,etage,numero))}
+function colorForVin(vin){return vinColors[String(vin||'').trim()]||'#ead8c5'}
+function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function isInvertedRang(rang){return [2,4,6,8,10,12,13,15,17].includes(Number(rang))}
+function renderRang(conf){
+  const selected=state.selectedBarrique||{};
+  let sup='',inf='';
+  for(let i=1;i<=maxSlots(conf);i++){sup+=renderCell(conf,'sup',i,selected);inf+=renderCell(conf,'inf',i,selected);}
+  const pos=rangPositions[conf.rang]||[1,1];
+  const invert=isInvertedRang(conf.rang);
+  const leftLabel=invert?'Étage<br>inf.':'Étage<br>sup.';
+  const rightLabel=invert?'Étage<br>sup.':'Étage<br>inf.';
+  const leftCells=invert?inf:sup;
+  const rightCells=invert?sup:inf;
+  return `<div class="rang-block rang-${conf.rang}" style="grid-column:${pos[0]};grid-row:${pos[1]}"><div class="rang-title">${conf.rang}</div><div class="rang-cols"><div class="etage-label">${leftLabel}</div><div class="etage-label">${rightLabel}</div><div>${leftCells}</div><div>${rightCells}</div></div></div>`;
+}
+function renderCell(conf,etage,n,selected){
+  const exists=n<=conf[etage] && !isMissing(conf,etage,n);
+  if(!exists)return `<div class="barrique-cell inexistante" title="Emplacement inexistant"></div>`;
+  const b=findBarrique(conf.rang,etage,n);
+  const sel=selected.rang==conf.rang && selected.etage===etage && selected.numero==n;
+  const style=b&&b.vin?` style="background:${colorForVin(b.vin)}"`:'';
+  const content=b?(b.comment?`<span class="cell-comment">${escapeHtml(String(b.comment).slice(0,12))}</span>`:escapeHtml(String(b.vin||'').slice(0,3))):'';
+  const title=b?`${b.vin||''} ${b.millesime||''} · ${b.lot||''}${b.comment?' · '+b.comment:''}`:`Rang ${conf.rang} · ${etage==='sup'?'étage supérieur':'étage inférieur'} · n°${n}`;
+  return `<div class="barrique-cell exists ${b?'filled':''} ${sel?'selected':''}"${style} title="${escapeHtml(title)}" onclick="selectBarrique(${conf.rang},'${etage}',${n},true)">${content}</div>`;
+}
+function renderChai3Map(){
+  const el=document.getElementById('chai3Map'); if(!el)return;
+  el.innerHTML=[...rangOrderTop,...rangOrderBottom].map(r=>renderRang(rangConf(r))).join('');
+  renderSelectedBarriqueBox(); renderBarriqueSummary();
+}
+function renderSelectedBarriqueBox(){
+  const box=document.getElementById('selectedBarriqueBox'); if(!box)return;
+  const s=state.selectedBarrique;
+  if(!s){box.innerHTML='Aucune barrique sélectionnée.';return}
+  const b=findBarrique(s.rang,s.etage,s.numero);
+  box.innerHTML=`<strong>Rang ${s.rang} · ${s.etage==='sup'?'étage supérieur':'étage inférieur'} · barrique n°${s.numero}</strong><br>${b?`Vin : <strong>${b.vin||'—'}</strong><br>Millésime : <strong>${b.millesime||'—'}</strong><br>Lot / cuve : <strong>${b.lot||'—'}</strong><br>Commentaire : <strong>${b.comment||'—'}</strong>`:'Aucune information encore saisie sur cette case.'}`;
+}
+function renderBarriqueSummary(){
+  const el=document.getElementById('barriqueSummary'); if(!el)return;
+  const total=(state.barriques||[]).length;
+  const gv=(state.barriques||[]).filter(b=>b.vin==='GV').length, fl=(state.barriques||[]).filter(b=>b.vin==='FL').length, pa=(state.barriques||[]).filter(b=>b.vin==='PA').length, vcc=(state.barriques||[]).filter(b=>b.vin==='VCC').length;
+  el.innerHTML=`<div class="mini-kpi"><span>Saisies</span><strong>${total}</strong></div><div class="mini-kpi"><span>GV</span><strong>${gv}</strong></div><div class="mini-kpi"><span>FL</span><strong>${fl}</strong></div><div class="mini-kpi"><span>PA</span><strong>${pa}</strong></div><div class="mini-kpi"><span>VCC</span><strong>${vcc}</strong></div>`;
+}
+function validNumbersFor(conf,etage){let out=[]; for(let n=1;n<=conf[etage];n++){if(!isMissing(conf,etage,n))out.push(n)} return out;}
+function initBarriqueSelectors(){
+  const r=document.getElementById('barRang'); if(!r)return;
+  const oldRang=r.value;
+  r.innerHTML=rangsChai3.map(x=>`<option value="${x.rang}">${x.rang}</option>`).join('');
+  if(rangConf(oldRang)) r.value=oldRang;
+  updateBarriqueNumberOptions();
+}
+function updateBarriqueNumberOptions(){
+  const r=document.getElementById('barRang'), e=document.getElementById('barEtage'), s=document.getElementById('barNumeroStart'), nend=document.getElementById('barNumeroEnd'); if(!r||!e||!s||!nend)return;
+  const conf=rangConf(r.value); const et=e.value; if(!conf)return;
+  const oldS=s.value, oldE=nend.value;
+  const nums=validNumbersFor(conf,et);
+  const opts=nums.map(n=>`<option value="${n}">${n}</option>`).join('');
+  s.innerHTML=opts; nend.innerHTML=opts;
+  if(nums.includes(Number(oldS))) s.value=oldS;
+  else if(nums.length) s.value=String(nums[0]);
+  if(nums.includes(Number(oldE))) nend.value=oldE;
+  else nend.value=s.value;
+}
+function syncEndIfNeeded(){const s=document.getElementById('barNumeroStart'), e=document.getElementById('barNumeroEnd'); if(s&&e&&Number(e.value)<Number(s.value))e.value=s.value;}
+function selectBarrique(rang,etage,numero,goForm=true){
+  state.selectedBarrique={rang:Number(rang),etage,numero:Number(numero)};
+  fillBarriqueForm();
+  renderChai3Map();
+  save();
+  if(goForm)page('barriquesPlan');
+}
+function fillBarriqueForm(){
+  initBarriqueSelectors();
+  const s=state.selectedBarrique; if(!s)return;
+  const b=findBarrique(s.rang,s.etage,s.numero)||{};
+  const set=(id,v)=>{const el=document.getElementById(id); if(el)el.value=v??''};
+  set('barRang',s.rang); set('barEtage',s.etage); updateBarriqueNumberOptions(); set('barNumeroStart',s.numero); set('barNumeroEnd',s.numero);
+  set('barVin',b.vin||''); set('barMillesime',b.millesime||''); set('barLot',b.lot||''); set('barVolume',b.volume||225); set('barFillDate',b.fillDate||''); set('barStatut',b.statut||'En élevage'); set('barComment',b.comment||'');
+}
+function numbersInRange(conf,etage,start,end){const a=Math.min(Number(start),Number(end)), b=Math.max(Number(start),Number(end)); return validNumbersFor(conf,etage).filter(n=>n>=a&&n<=b);}
+function saveBarriqueFromForm(){
+  // Ne pas réinitialiser les sélecteurs ici : sinon le rang revient au rang 1 avant l'enregistrement.
+  const get=id=>document.getElementById(id)?.value;
+  const rang=Number(get('barRang')), etage=get('barEtage'), n1=Number(get('barNumeroStart')), n2=Number(get('barNumeroEnd'));
+  const conf=rangConf(rang); if(!conf){toast('Rang invalide');return}
+  const nums=numbersInRange(conf,etage,n1,n2); if(!nums.length){toast('Aucune barrique existante dans cette plage');return}
+  nums.forEach(numero=>{
+    const obj={key:barKey(rang,etage,numero),rang,etage,numero,vin:get('barVin')||'',millesime:get('barMillesime')||'',lot:get('barLot')||'',volume:Number(get('barVolume'))||225,fillDate:get('barFillDate')||'',statut:get('barStatut')||'En élevage',comment:get('barComment')||''};
+    const i=(state.barriques||[]).findIndex(b=>b.key===obj.key);
+    if(i>=0)state.barriques[i]=obj; else state.barriques.push(obj);
+  });
+  state.selectedBarrique={rang,etage,numero:nums[0]};
+  recalcAll(); renderBarriques(); renderChai3Map(); toast(`${nums.length} barrique(s) enregistrée(s)`);
+}
+function deleteSelectedBarrique(){
+  const get=id=>document.getElementById(id)?.value;
+  const rang=Number(get('barRang')), etage=get('barEtage'), n1=Number(get('barNumeroStart')), n2=Number(get('barNumeroEnd'));
+  const conf=rangConf(rang); if(!conf)return;
+  const nums=numbersInRange(conf,etage,n1,n2);
+  const keys=new Set(nums.map(n=>barKey(rang,etage,n)));
+  state.barriques=(state.barriques||[]).filter(b=>!keys.has(b.key));
+  clearBarriqueForm(); recalcAll(); renderBarriques(); renderChai3Map(); toast(`${nums.length} saisie(s) supprimée(s)`);
+}
+function clearBarriqueForm(){
+  state.selectedBarrique=null; initBarriqueSelectors();
+  ['barMillesime','barLot','barComment','barFillDate'].forEach(id=>{const el=document.getElementById(id); if(el)el.value=''});
+  const vin=document.getElementById('barVin'); if(vin)vin.value=''; const v=document.getElementById('barVolume'); if(v)v.value=225; const st=document.getElementById('barStatut'); if(st)st.value='En élevage';
+  renderSelectedBarriqueBox(); renderChai3Map();
+}
+function renderBarriques(){
+  initBarriqueSelectors(); fillBarriqueForm();
+  const t=document.getElementById('barriquesTable'); if(!t)return;
+  const head='<tr><th>Rang</th><th>Étage</th><th>N°</th><th>Vin</th><th>Millésime</th><th>Lot / cuve</th><th>Volume L</th><th>Remplissage</th><th>Statut</th><th>Commentaire</th><th></th></tr>';
+  const rows=(state.barriques||[]).slice().sort((a,b)=>a.rang-b.rang || a.numero-b.numero || a.etage.localeCompare(b.etage)).map(b=>`<tr><td>${b.rang}</td><td>${b.etage==='sup'?'Supérieur':'Inférieur'}</td><td>${b.numero}</td><td><span class="color-dot" style="background:${colorForVin(b.vin)}"></span>${b.vin||''}</td><td>${b.millesime||''}</td><td>${b.lot||''}</td><td>${fmt(b.volume,1)}</td><td>${b.fillDate||''}</td><td>${b.statut||''}</td><td>${escapeHtml(b.comment||'')}</td><td><button class="btn" onclick="selectBarrique(${b.rang},'${b.etage}',${b.numero},true)">Modifier</button></td></tr>`).join('');
+  t.innerHTML=head+rows;
+}
+
+function downloadJSON(){ensureMeta(); state.meta.lastExport=new Date().toISOString(); state.meta.exportedBy='Utilisateur'; const stamp=new Date().toISOString().slice(0,19).replace(/[:T]/g,'-'); const exportState={...state, meta:{...state.meta, exportedAt:new Date().toISOString(), appVersion:'v18 sans données économiques par défaut'}}; const blob=new Blob([JSON.stringify(exportState,null,2)],{type:'application/json'}); dl(blob,'sauvegarde_consume_chais_'+stamp+'.json'); save(); toast('Sauvegarde JSON exportée')}
+function loadJSONBackup(){const inp=document.createElement('input'); inp.type='file'; inp.accept='.json,application/json'; inp.onchange=()=>{const file=inp.files[0]; if(!file)return; const reader=new FileReader(); reader.onload=()=>{try{let imported=JSON.parse(String(reader.result)); if(!imported.env && !imported.lots && !imported.barriques && !imported.weather){alert('Ce fichier ne ressemble pas à une sauvegarde de l’application.'); return;} imported=migrate(imported)||imported; state={...state,...imported}; ensureMeta(); state.meta.lastImport=new Date().toISOString(); state.meta.lastImportFile=file.name; recalcAll(); renderBackupStatus(); page('backup'); toast('Sauvegarde restaurée');}catch(e){alert('Impossible de lire cette sauvegarde JSON.')}}; reader.readAsText(file)}; inp.click()}
+function renderBackupStatus(){const el=document.getElementById('backupStatus'); if(!el)return; ensureMeta(); const envCount=(state.env||[]).length, forecastCount=(state.weather||[]).length, lotCount=(state.lots||[]).length, barCount=(state.barriques||[]).length; el.innerHTML=`<div class="backup-box"><span class="muted">Dernière sauvegarde locale</span><strong>${localDateTimeLabel(state.meta.lastLocalSave)}</strong></div><div class="backup-box"><span class="muted">Dernier export JSON</span><strong>${localDateTimeLabel(state.meta.lastExport)}</strong></div><div class="backup-box"><span class="muted">Dernière restauration</span><strong>${state.meta.lastImportFile?state.meta.lastImportFile+' · ':''}${localDateTimeLabel(state.meta.lastImport)}</strong></div><div class="backup-box"><span class="muted">Conditions environnementales</span><strong>${envCount} lignes</strong></div><div class="backup-box"><span class="muted">Prévisions météo</span><strong>${forecastCount} lignes</strong></div><div class="backup-box"><span class="muted">Lots calculés / saisis</span><strong>${lotCount} lots</strong></div><div class="backup-box"><span class="muted">Barriques du plan</span><strong>${barCount} emplacements renseignés</strong></div>`;}
+function downloadEnvCSV(){const header=['date','t1','hr1','t2','hr2','t3','hr3']; const csv=[header.join(';'),...state.env.map(r=>header.map(h=>String(r[h]??'').replace('.',',')).join(';'))].join('\n'); dl(new Blob([csv],{type:'text/csv;charset=utf-8'}),'conditions_environnement.csv')}
+
+function downloadWeatherCSV(){
+  const header=['date','tExt','hrExt','commentaire'];
+  const csv=[header.join(';'),...(state.weather||[]).map(r=>header.map(h=>String(r[h]??'').replace('.',',')).join(';'))].join('\n');
+  dl(new Blob([csv],{type:'text/csv;charset=utf-8'}),'previsions_meteo_exterieure.csv');
+}
+function loadWeatherCSVPrompt(){
+  const inp=document.createElement('input'); inp.type='file'; inp.accept='.csv,text/csv';
+  inp.onchange=()=>{const file=inp.files[0]; if(!file)return; const reader=new FileReader();
+    reader.onload=()=>{const lines=String(reader.result).split(/\r?\n/).filter(Boolean); if(!lines.length)return; const head=lines.shift().split(/[;,]/).map(x=>x.trim());
+      state.weather=lines.map(line=>{const parts=line.split(/[;,]/); let obj={}; head.forEach((h,i)=>obj[h]=parts[i]); return {date:obj.date||obj.Date||'',tExt:obj.tExt!==undefined?num(obj.tExt):num(obj.temperature||obj.T||obj.t),hrExt:obj.hrExt!==undefined?num(obj.hrExt):num(obj.hr||obj.HR||obj.humidite),commentaire:obj.commentaire||obj.Commentaire||''}});
+      ensureMeta(); state.meta.lastWeatherImport=new Date().toISOString(); state.meta.lastWeatherImportFile=file.name; recalcAll(); page('weather');
+    };
+    reader.readAsText(file);
+  };
+  inp.click();
+}
+
+function downloadImpactCSV(){const csv=['Chai;Cuvee;Millesime;Annee_elevage;Barriques;Date_remplissage;Jours_actifs;Volume_initial_L;Cumul_signe_L;Manque_a_ouiller_L;Volume_restant_L;Eq_bouteilles;Pertes_EUR',...state.impact.map(x=>`${x.chai};${x.cuvee};${x.millesime||''};${x.elevage||''};${x.barrels};${x.fillDate||''};${x.daysActive};${x.startL.toFixed(2)};${x.totalL.toFixed(2)};${(x.missingL||0).toFixed(2)};${x.remainingL.toFixed(2)};${x.totalB.toFixed(1)};${x.totalE.toFixed(0)}`)].join('\n'); dl(new Blob([csv],{type:'text/csv;charset=utf-8'}),'impact_volume_euros.csv')}
+function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href)}
+function loadCSVPrompt(){const inp=document.createElement('input');inp.type='file';inp.accept='.csv,text/csv';inp.onchange=()=>{const file=inp.files[0];if(!file)return; const reader=new FileReader();reader.onload=()=>{const lines=String(reader.result).split(/\r?\n/).filter(Boolean); const head=lines.shift().split(/[;,]/).map(x=>x.trim()); state.env=lines.map(line=>{const parts=line.split(/[;,]/); let obj={}; head.forEach((h,i)=>obj[h]=parts[i]); return {date:obj.date||obj.Date,t1:num(obj.t1),hr1:num(obj.hr1),t2:num(obj.t2),hr2:num(obj.hr2),t3:num(obj.t3),hr3:num(obj.hr3)}}); ensureMeta(); state.meta.lastEnvImport=new Date().toISOString(); state.meta.lastEnvImportFile=file.name; recalcAll();};reader.readAsText(file)};inp.click()}
+function page(id){document.querySelectorAll('.section').forEach(s=>s.classList.toggle('active',s.id===id));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id)); if(id==='dashboard')setTimeout(()=>{drawEnvChart();drawLineChart();drawVolumeChart();},20); if(id==='planChai3')setTimeout(()=>{renderChai3Map();},20); if(id==='barriquesPlan')setTimeout(()=>{renderBarriques();},20)}
+document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>page(b.dataset.page)));window.addEventListener('resize',()=>{drawEnvChart();drawLineChart();drawVolumeChart();});load();
+</script>
+</body>
+</html>
