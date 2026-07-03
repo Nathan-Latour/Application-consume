@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pilotage de la consume des chais - v11</title>
+  <title>Pilotage de la consume des chais - v20</title>
   <style>
     :root{--bg:#f6f4ef;--panel:#fffdf8;--ink:#17212b;--muted:#66717f;--line:#ded8cc;--blue:#19324d;--blue2:#254b72;--accent:#8b6b3d;--green:#257a4b;--orange:#c97919;--red:#b23a3a;--soft:#eef2f5;--shadow:0 12px 30px rgba(25,50,77,.08)}
     *{box-sizing:border-box} body{margin:0;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
@@ -68,8 +68,8 @@
     </section>
 
     <section id="env" class="section">
-      <div class="top"><div><h2>Conditions environnement</h2><p>Saisir les températures et humidités relatives des 3 chais. Les deltas sont calculés uniquement par rapport à la journée précédente.</p></div><div class="actions"><button class="btn" onclick="addEnvRow()">+ Ajouter une journée</button><button class="btn warn" onclick="loadCSVPrompt()">Importer CSV</button><button class="btn" onclick="downloadEnvCSV()">Exporter CSV</button></div></div>
-      <div class="card"><h3>Saisie quotidienne</h3><p class="help">Pour chaque chai : Médiane HR = HR saisie du jour ; ΔHR = HR du jour - HR de la veille ; Médiane T = T saisie du jour ; ΔT = T du jour - T de la veille. La première date sert de point de départ : Δ = 0.</p><div class="table-wrap"><table id="envTable"></table></div></div>
+      <div class="top"><div><h2>Conditions environnement</h2><p>Saisir les températures et humidités relatives des 3 chais. Les deltas sont calculés uniquement par rapport à la journée précédente.</p></div><div class="actions"><button class="btn" onclick="addEnvRow()">+ Ajouter une journée</button><button class="btn warn" onclick="loadCSVPrompt()">Importer CSV</button><label class="help" style="display:flex;align-items:center;gap:6px;margin:0"><strong>Capteur vers</strong><select class="sensorChaiSelect" onchange="syncSensorChaiSelects(this.value)"><option value="1">Chai 1</option><option value="2">Chai 2</option><option value="3">Chai 3</option><option value="all">Tous les chais</option></select></label><button class="btn warn" onclick="loadSensorEnvPrompt()">Importer capteur</button><button class="btn" onclick="downloadEnvCSV()">Exporter CSV</button></div></div>
+      <div class="card"><h3>Saisie quotidienne</h3><p class="help">Pour chaque chai : Médiane HR = HR saisie du jour ; ΔHR = HR du jour - HR de la veille ; Médiane T = T saisie du jour ; ΔT = T du jour - T de la veille. L’import capteur récupère uniquement EXTERNAL_TEMP et HUMIDITY, calcule la médiane journalière, puis ajoute seulement les dates absentes.</p><div class="table-wrap"><table id="envTable"></table></div></div>
     </section>
 
     <section id="weather" class="section">
@@ -174,6 +174,8 @@
           <button class="btn primary" onclick="downloadJSON()">Exporter la sauvegarde complète JSON</button>
           <button class="btn warn" onclick="loadJSONBackup()">Importer / restaurer une sauvegarde JSON</button>
           <button class="btn" onclick="downloadEnvCSV()">Exporter uniquement les conditions environnementales CSV</button>
+          <label class="help" style="display:flex;align-items:center;gap:6px;margin:0"><strong>Capteur vers</strong><select class="sensorChaiSelect" onchange="syncSensorChaiSelects(this.value)"><option value="1">Chai 1</option><option value="2">Chai 2</option><option value="3">Chai 3</option><option value="all">Tous les chais</option></select></label>
+          <button class="btn warn" onclick="loadSensorEnvPrompt()">Importer conditions depuis capteur</button>
           <button class="btn" onclick="downloadWeatherCSV()">Exporter uniquement les prévisions météo CSV</button>
         </div>
       </div>
@@ -194,7 +196,7 @@
 const months=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Sept.','Oct.','Nov.','Déc.'];
 const chais=['Chai 1','Chai 2','Chai 3'];
 const cuvees=['GV','FL','PA','VCC','Presse','Primeurs'];
-let state={coefficients:{constant:-125.55,medHR:1.40,deltaHR:1.20,deltaT:10.99,medT:0.06}, prices:{GV:0,FL:0,PA:0,VCC:0,Presse:0,Primeurs:0}, env:[], weather:[], weatherSettings:{tempHigh:30,hrLow:45}, lots:[], barriques:[], selectedBarrique:null, daily:[], impact:[], meta:{lastLocalSave:null,lastExport:null,lastImport:null,appVersion:'v18 sans données économiques par défaut'} };
+let state={coefficients:{constant:-125.55,medHR:1.40,deltaHR:1.20,deltaT:10.99,medT:0.06}, prices:{GV:0,FL:0,PA:0,VCC:0,Presse:0,Primeurs:0}, env:[], weather:[], weatherSettings:{tempHigh:30,hrLow:45}, lots:[], barriques:[], selectedBarrique:null, daily:[], impact:[], meta:{lastLocalSave:null,lastExport:null,lastImport:null,appVersion:'v20 import capteur avec choix du chai'} };
 function pad(n){return String(n).padStart(2,'0')}
 function iso(d){return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`}
 function fmt(n,d=1){return Number.isFinite(n)?n.toLocaleString('fr-FR',{maximumFractionDigits:d,minimumFractionDigits:d}):'—'}
@@ -226,7 +228,7 @@ function defaultLots(){return [
 ]}
 function resetDemo(){state.env=defaultEnv(); state.weather=defaultWeather(); state.weatherSettings={tempHigh:30,hrLow:45}; state.lots=defaultLots(); state.coefficients={constant:-125.55,medHR:1.40,deltaHR:1.20,deltaT:10.99,medT:0.06}; state.modes={clamp:false}; state.prices={GV:0,FL:0,PA:0,VCC:0,Presse:0,Primeurs:0}; state.barriques=[]; state.selectedBarrique=null; recalcAll(); toast('Exemple réinitialisé')}
 function migrate(s){if(!s)return null; if(s.plan && !s.lots){s.lots=s.plan.flatMap(p=>{let out=[]; if(Number(p.a1)>0) out.push({chai:p.chai,cuvee:p.cuvee,millesime:2025,elevage:'1ère année',barrels:Number(p.a1)||0,fillDate:'2026-01-01',exitDate:''}); if(Number(p.a2)>0) out.push({chai:p.chai,cuvee:p.cuvee,millesime:2024,elevage:'2ème année',barrels:Number(p.a2)||0,fillDate:'2026-01-01',exitDate:''}); return out}); delete s.plan;} s.modes={clamp: s.modes && typeof s.modes.clamp === 'boolean' ? s.modes.clamp : false}; if(!s.lots)s.lots=[]; if(!s.weather)s.weather=[]; s.weatherSettings={tempHigh:30,hrLow:45,...(s.weatherSettings||{})}; if(!s.barriques)s.barriques=[]; if(!s.selectedBarrique)s.selectedBarrique=null; s.prices={GV:0,FL:0,PA:0,VCC:0,Presse:0,Primeurs:0,...(s.prices||{})}; return s;}
-function ensureMeta(){if(!state.meta)state.meta={}; if(!state.meta.appVersion)state.meta.appVersion='v13 VCC jaune et étages inversés'}
+function ensureMeta(){if(!state.meta)state.meta={}; if(!state.meta.appVersion)state.meta.appVersion='v20 import capteur avec choix du chai'}
 function localDateTimeLabel(isoStr){if(!isoStr)return 'Jamais'; try{return new Date(isoStr).toLocaleString('fr-FR')}catch(e){return isoStr}}
 function save(){ensureMeta(); state.meta.lastLocalSave=new Date().toISOString(); localStorage.setItem('consumeChaiAppV6',JSON.stringify(state)); renderBackupStatus()}
 function load(){try{let s=JSON.parse(localStorage.getItem('consumeChaiAppV6')) || JSON.parse(localStorage.getItem('consumeChaiAppV5')) || JSON.parse(localStorage.getItem('consumeChaiAppV3')) || JSON.parse(localStorage.getItem('consumeChaiAppV2')) || JSON.parse(localStorage.getItem('consumeChaiApp')); s=migrate(s); if(s&&s.env&&s.lots){state={...state,...s}; ensureMeta(); recalcAll();} else resetDemo()}catch(e){resetDemo()} renderBackupStatus()}
@@ -875,7 +877,7 @@ function renderBarriques(){
   t.innerHTML=head+rows;
 }
 
-function downloadJSON(){ensureMeta(); state.meta.lastExport=new Date().toISOString(); state.meta.exportedBy='Utilisateur'; const stamp=new Date().toISOString().slice(0,19).replace(/[:T]/g,'-'); const exportState={...state, meta:{...state.meta, exportedAt:new Date().toISOString(), appVersion:'v18 sans données économiques par défaut'}}; const blob=new Blob([JSON.stringify(exportState,null,2)],{type:'application/json'}); dl(blob,'sauvegarde_consume_chais_'+stamp+'.json'); save(); toast('Sauvegarde JSON exportée')}
+function downloadJSON(){ensureMeta(); state.meta.lastExport=new Date().toISOString(); state.meta.exportedBy='Utilisateur'; const stamp=new Date().toISOString().slice(0,19).replace(/[:T]/g,'-'); const exportState={...state, meta:{...state.meta, exportedAt:new Date().toISOString(), appVersion:'v20 import capteur avec choix du chai'}}; const blob=new Blob([JSON.stringify(exportState,null,2)],{type:'application/json'}); dl(blob,'sauvegarde_consume_chais_'+stamp+'.json'); save(); toast('Sauvegarde JSON exportée')}
 function loadJSONBackup(){const inp=document.createElement('input'); inp.type='file'; inp.accept='.json,application/json'; inp.onchange=()=>{const file=inp.files[0]; if(!file)return; const reader=new FileReader(); reader.onload=()=>{try{let imported=JSON.parse(String(reader.result)); if(!imported.env && !imported.lots && !imported.barriques && !imported.weather){alert('Ce fichier ne ressemble pas à une sauvegarde de l’application.'); return;} imported=migrate(imported)||imported; state={...state,...imported}; ensureMeta(); state.meta.lastImport=new Date().toISOString(); state.meta.lastImportFile=file.name; recalcAll(); renderBackupStatus(); page('backup'); toast('Sauvegarde restaurée');}catch(e){alert('Impossible de lire cette sauvegarde JSON.')}}; reader.readAsText(file)}; inp.click()}
 function renderBackupStatus(){const el=document.getElementById('backupStatus'); if(!el)return; ensureMeta(); const envCount=(state.env||[]).length, forecastCount=(state.weather||[]).length, lotCount=(state.lots||[]).length, barCount=(state.barriques||[]).length; el.innerHTML=`<div class="backup-box"><span class="muted">Dernière sauvegarde locale</span><strong>${localDateTimeLabel(state.meta.lastLocalSave)}</strong></div><div class="backup-box"><span class="muted">Dernier export JSON</span><strong>${localDateTimeLabel(state.meta.lastExport)}</strong></div><div class="backup-box"><span class="muted">Dernière restauration</span><strong>${state.meta.lastImportFile?state.meta.lastImportFile+' · ':''}${localDateTimeLabel(state.meta.lastImport)}</strong></div><div class="backup-box"><span class="muted">Conditions environnementales</span><strong>${envCount} lignes</strong></div><div class="backup-box"><span class="muted">Prévisions météo</span><strong>${forecastCount} lignes</strong></div><div class="backup-box"><span class="muted">Lots calculés / saisis</span><strong>${lotCount} lots</strong></div><div class="backup-box"><span class="muted">Barriques du plan</span><strong>${barCount} emplacements renseignés</strong></div>`;}
 function downloadEnvCSV(){const header=['date','t1','hr1','t2','hr2','t3','hr3']; const csv=[header.join(';'),...state.env.map(r=>header.map(h=>String(r[h]??'').replace('.',',')).join(';'))].join('\n'); dl(new Blob([csv],{type:'text/csv;charset=utf-8'}),'conditions_environnement.csv')}
@@ -899,6 +901,126 @@ function loadWeatherCSVPrompt(){
 
 function downloadImpactCSV(){const csv=['Chai;Cuvee;Millesime;Annee_elevage;Barriques;Date_remplissage;Jours_actifs;Volume_initial_L;Cumul_signe_L;Manque_a_ouiller_L;Volume_restant_L;Eq_bouteilles;Pertes_EUR',...state.impact.map(x=>`${x.chai};${x.cuvee};${x.millesime||''};${x.elevage||''};${x.barrels};${x.fillDate||''};${x.daysActive};${x.startL.toFixed(2)};${x.totalL.toFixed(2)};${(x.missingL||0).toFixed(2)};${x.remainingL.toFixed(2)};${x.totalB.toFixed(1)};${x.totalE.toFixed(0)}`)].join('\n'); dl(new Blob([csv],{type:'text/csv;charset=utf-8'}),'impact_volume_euros.csv')}
 function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href)}
+
+function sensorNumber(v){
+  const m=String(v??'').replace(',','.').match(/-?\d+(?:\.\d+)?/);
+  return m?Number(m[0]):NaN;
+}
+function median(values){
+  const arr=values.map(Number).filter(Number.isFinite).sort((a,b)=>a-b);
+  if(!arr.length)return NaN;
+  const mid=Math.floor(arr.length/2);
+  return arr.length%2?arr[mid]:(arr[mid-1]+arr[mid])/2;
+}
+function round1(v){return Number.isFinite(v)?Math.round(v*10)/10:''}
+function normalizeSensorMetric(v){return String(v||'').trim().toUpperCase().replace(/[\s\-]+/g,'_')}
+function parseSensorLine(line){
+  const raw=String(line||'').trim();
+  if(!raw)return null;
+  let parts=[];
+  if(raw.includes('\t'))parts=raw.split('\t').map(x=>x.trim());
+  else if(raw.includes(';'))parts=raw.split(';').map(x=>x.trim());
+  else if(raw.includes(','))parts=raw.split(',').map(x=>x.trim());
+  if(parts.length>=4){
+    const dateMatch=String(parts[0]).match(/\d{4}-\d{2}-\d{2}/);
+    if(dateMatch)return {date:dateMatch[0],metric:normalizeSensorMetric(parts[1]),value:sensorNumber(parts.slice(3).join(' '))};
+  }
+  const m=raw.match(/^(\d{4}-\d{2}-\d{2})(?:[ T]\d{2}:\d{2}:\d{2})?\s+([A-Za-zÀ-ÿ_\-]+)\s+([^\s]+)\s+(-?\d+(?:[\.,]\d+)?)/);
+  if(!m)return null;
+  return {date:m[1],metric:normalizeSensorMetric(m[2]),value:sensorNumber(m[4])};
+}
+function envCarryValue(v){
+  if(v==='' || v===null || v===undefined)return '';
+  const n=Number(String(v).replace(',','.'));
+  return Number.isFinite(n)?n:'';
+}
+function envBaseForDate(dateStr){
+  const rows=(state.env||[]).filter(r=>r.date).slice().sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  let base=null;
+  for(const r of rows){if(String(r.date)<=String(dateStr))base=r; else break;}
+  if(!base)base=rows[rows.length-1]||{};
+  return {date:dateStr,t1:envCarryValue(base.t1),hr1:envCarryValue(base.hr1),t2:envCarryValue(base.t2),hr2:envCarryValue(base.hr2),t3:envCarryValue(base.t3),hr3:envCarryValue(base.hr3)};
+}
+function syncSensorChaiSelects(value){
+  document.querySelectorAll('.sensorChaiSelect').forEach(sel=>{sel.value=value;});
+}
+function sensorTargetsFromChoice(choice){
+  const clean=String(choice||'1').trim().toLowerCase();
+  if(['t','tous','tout','all'].includes(clean))return [1,2,3];
+  if(['1','2','3'].includes(clean))return [Number(clean)];
+  return [];
+}
+function getSensorImportTargets(){
+  const sel=document.querySelector('.sensorChaiSelect');
+  const targets=sensorTargetsFromChoice(sel?sel.value:'1');
+  if(!targets.length){alert('Choix de chai non reconnu. Import annulé.'); return null;}
+  return targets;
+}
+function loadSensorEnvPrompt(){
+  const targets=getSensorImportTargets();
+  if(!targets)return;
+  const inp=document.createElement('input');
+  inp.type='file';
+  inp.accept='.csv,.txt,text/csv,text/plain';
+  inp.onchange=()=>{
+    const file=inp.files[0];
+    if(!file)return;
+    const reader=new FileReader();
+    reader.onload=()=>{
+      const lines=String(reader.result).split(/\r?\n/).filter(x=>String(x).trim());
+      const groups={};
+      let parsedRows=0, keptRows=0, ignoredMetricRows=0;
+      lines.forEach(line=>{
+        const r=parseSensorLine(line);
+        if(!r || !r.date || !Number.isFinite(r.value))return;
+        parsedRows++;
+        if(!groups[r.date])groups[r.date]={temps:[],hrs:[]};
+        if(r.metric==='EXTERNAL_TEMP' || r.metric==='EXTERNAL_TEMPERATURE' || r.metric==='EXT_TEMP'){
+          groups[r.date].temps.push(r.value); keptRows++;
+        }else if(r.metric==='HUMIDITY' || r.metric==='RELATIVE_HUMIDITY' || r.metric==='HR' || r.metric.includes('HUMID')){
+          groups[r.date].hrs.push(r.value); keptRows++;
+        }else{
+          ignoredMetricRows++;
+        }
+      });
+      const rowsByDate=new Map((state.env||[]).map(r=>[String(r.date),r]));
+      let added=0, completedExisting=0, skippedExisting=0, skippedIncomplete=0;
+      Object.keys(groups).sort().forEach(date=>{
+        const g=groups[date];
+        const t=round1(median(g.temps));
+        const hr=round1(median(g.hrs));
+        if(t==='' || hr===''){skippedIncomplete++; return;}
+        let row=rowsByDate.get(date);
+        if(row){
+          // On ne remplace jamais une ligne saisie manuellement ou importée sans suivi de chai.
+          // En revanche, une ligne créée par cet import peut être complétée plus tard pour un autre chai.
+          if(!row._sensorImportChais){skippedExisting++; return;}
+          const newTargets=targets.filter(idx=>!row._sensorImportChais[idx]);
+          if(!newTargets.length){skippedExisting++; return;}
+          newTargets.forEach(idx=>{row['t'+idx]=t; row['hr'+idx]=hr; row._sensorImportChais[idx]=true;});
+          completedExisting++;
+        }else{
+          row=envBaseForDate(date);
+          row._sensorImportChais={};
+          targets.forEach(idx=>{row['t'+idx]=t; row['hr'+idx]=hr; row._sensorImportChais[idx]=true;});
+          state.env.push(row);
+          rowsByDate.set(date,row);
+          added++;
+        }
+      });
+      ensureMeta();
+      state.meta.lastEnvSensorImport=new Date().toISOString();
+      state.meta.lastEnvSensorImportFile=file.name;
+      state.meta.lastEnvSensorImportChai=targets.length===3?'Tous les chais':targets.map(i=>'Chai '+i).join(', ');
+      recalcAll();
+      page('env');
+      alert(`Import capteur terminé (${targets.length===3?'tous les chais':targets.map(i=>'Chai '+i).join(', ')}).\n${added} nouvelle(s) date(s) ajoutée(s).\n${completedExisting} date(s) déjà créées par import capteur complétée(s) pour le chai choisi.\n${skippedExisting} date(s) ignorée(s) car déjà saisie(s) pour ce chai.\n${skippedIncomplete} date(s) ignorée(s) car température ou humidité manquante.\n${ignoredMetricRows} ligne(s) ignorée(s) hors EXTERNAL_TEMP/HUMIDITY.`);
+    };
+    reader.readAsText(file);
+  };
+  inp.click();
+}
+
 function loadCSVPrompt(){const inp=document.createElement('input');inp.type='file';inp.accept='.csv,text/csv';inp.onchange=()=>{const file=inp.files[0];if(!file)return; const reader=new FileReader();reader.onload=()=>{const lines=String(reader.result).split(/\r?\n/).filter(Boolean); const head=lines.shift().split(/[;,]/).map(x=>x.trim()); state.env=lines.map(line=>{const parts=line.split(/[;,]/); let obj={}; head.forEach((h,i)=>obj[h]=parts[i]); return {date:obj.date||obj.Date,t1:num(obj.t1),hr1:num(obj.hr1),t2:num(obj.t2),hr2:num(obj.hr2),t3:num(obj.t3),hr3:num(obj.hr3)}}); ensureMeta(); state.meta.lastEnvImport=new Date().toISOString(); state.meta.lastEnvImportFile=file.name; recalcAll();};reader.readAsText(file)};inp.click()}
 function page(id){document.querySelectorAll('.section').forEach(s=>s.classList.toggle('active',s.id===id));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id)); if(id==='dashboard')setTimeout(()=>{drawEnvChart();drawLineChart();drawVolumeChart();},20); if(id==='planChai3')setTimeout(()=>{renderChai3Map();},20); if(id==='barriquesPlan')setTimeout(()=>{renderBarriques();},20)}
 document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>page(b.dataset.page)));window.addEventListener('resize',()=>{drawEnvChart();drawLineChart();drawVolumeChart();});load();
